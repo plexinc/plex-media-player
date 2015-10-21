@@ -90,7 +90,7 @@ Assuming that everything else has installed correctly, building Plex Media Playe
 * ``cmake -GNinja -DCMAKE_BUILD_TYPE=Debug -DQTROOT=/usr/local/Qt-5.6.0 -DMPV_INCLUDE_DIR=/usr/local/include/mpv -DMPV_LIBRARY=/usr/local/lib/libmpv.so.1 -DCMAKE_INSTALL_PREFIX=output ..``
 * ``ninja-build``
 
-Once ninja-build completes successfully, you should have a usable ``./src/plex-media-player`` binary. Run it and test it out!
+Once ninja-build completes successfully, you should have a usable ``./src/plexmediaplayer`` binary. Run it and test it out! If it works as you expect, you should be able to run ``sudo install ./src/plexmediaplayer ./src/pmphelper /usr/local/bin`` so that the program is usable from anywhere on the system.
 
 ## License
 
