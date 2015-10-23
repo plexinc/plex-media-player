@@ -49,7 +49,15 @@ Or if you prefer working in Xcode, run CMake for the xcode build):
 
 You'll want to grab one of the Qt 5.6.0 alpha packages from http://download.qt.io/development_releases/qt/5.6/5.6.0-alpha/single/ and unpack it locally. On Fedora, even with a working development environment set up, the following packages were necessary to successfully build Qt (and QtWebEngine):
 
-``sudo dnf install libxcb libxcb-devel libXrender libXrender-devel xcb-util-wm xcb-util-wm-devel xcb-util xcb-util-devel xcb-util-image xcb-util-image-devel xcb-util-keysyms xcb-util-keysyms-devel libcap-devel snappy-devel libsrtp-devel nss-devel pciutils-devel gperf``
+Fedora users:
+```
+sudo dnf install libxcb libxcb-devel libXrender libXrender-devel xcb-util-wm xcb-util-wm-devel xcb-util xcb-util-devel xcb-util-image xcb-util-image-devel xcb-util-keysyms xcb-util-keysyms-devel libcap-devel snappy-devel libsrtp-devel nss-devel pciutils-devel gperf
+```
+
+Debian users
+```	
+sudo apt-get install libfontconfig1-dev libfreetype6-dev libx11-dev libxext-dev libxfixes-dev libxi-dev libxrender-dev libxcb1-dev libx11-xcb-dev libxcb-glx0-dev libxcb-keysyms1-dev libxcb-image0-dev libxcb-shm0-dev libxcb-icccm4-dev libxcb-sync0-dev libxcb-xfixes0-dev libxcb-shape0-dev	libxcb-randr0-dev libxcb-render-util0-dev
+```
 
 (The majority of the packages on this list came from http://code.qt.io/cgit/qt/qtbase.git/tree/src/plugins/platforms/xcb/README, but everything after xcb-util-keysyms-devel was trial-and-error in attempts build QtWebEngine; this list of packages may not be complete, but hopefully it provides a useful starting point.)
 
