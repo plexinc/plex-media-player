@@ -237,9 +237,25 @@ int InputCEC::CecKeyPress(void *cbParam, const cec_keypress key)
 
     if (!cmdString.isEmpty())
       cec->sendReceivedInput(CEC_INPUT_NAME, cmdString);
+    else
+      QLOG_DEBUG() << "Unknown keycode in keypress" << key.keycode;
   }
 
   return 0;
+}
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
+QString InputCEC::getCommandParamsList(cec_command command)
+{
+  QString output = QString("%1 parameter(s) :").arg(command.parameters.size);
+
+  if (command.parameters.size)
+  {
+    for (int i=0; i<command.parameters.size; i++)
+      output += QString("[%1]=%2 ").arg(i).arg(command.parameters[i]);
+  }
+
+  return output;
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
@@ -284,17 +300,27 @@ int InputCEC::CecCommand(void *cbParam, const cec_command command)
           // samsung Return key
           case CEC_USER_CONTROL_CODE_AN_RETURN:
             cec->sendReceivedInput(CEC_INPUT_NAME, INPUT_KEY_BACK);
+            return 1;
             break;
 
           default:
             break;
         }
       }
+
+      QLOG_DEBUG() << "Got CEC Button Up :" << cec->getCommandParamsList(command);
       break;
 
     case CEC_OPCODE_VENDOR_REMOTE_BUTTON_UP:
+      QLOG_DEBUG() << "Got CEC Button Up :" << cec->getCommandParamsList(command);
+      break;
+
     case CEC_OPCODE_USER_CONTROL_PRESSED:
-      // ignore those commands as they are handled in CecKeypress
+      QLOG_DEBUG() << "Got CEC Press :" << cec->getCommandParamsList(command);
+      break;
+
+    case CEC_OPCODE_USER_CONTROL_RELEASE:
+      QLOG_DEBUG() << "Got CEC Release :" << cec->getCommandParamsList(command);
       break;
 
     case CEC_OPCODE_GIVE_OSD_NAME:
@@ -303,12 +329,7 @@ int InputCEC::CecCommand(void *cbParam, const cec_command command)
       break;
 
     default:
-      QLOG_DEBUG() << "Unhandled CEC command " << command.opcode;
-      if (command.parameters.size)
-      {
-        for (int i=0; i<command.parameters.size; i++)
-          QLOG_DEBUG() << command.parameters.size << QString("parameters -> [%1]= %2").arg(i).arg(command.parameters[i]);
-      }
+      QLOG_DEBUG() << "Unhandled CEC command " << command.opcode << ", " << cec->getCommandParamsList(command);
       break;
   }
 
