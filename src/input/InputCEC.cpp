@@ -2,6 +2,7 @@
 #include "QsLog.h"
 #include "InputCEC.h"
 #include "settings/SettingsComponent.h"
+#include "power/PowerComponent.h"
 
 static QMap<int, QString> cecKeyMap   { \
                                       { CEC_USER_CONTROL_CODE_SELECT , INPUT_KEY_SELECT } , \
@@ -73,7 +74,7 @@ bool InputCEC::initInput()
   m_configuration.bAutodetectAddress =  CEC_DEFAULT_SETTING_AUTODETECT_ADDRESS;
   m_configuration.iPhysicalAddress = CEC_PHYSICAL_ADDRESS_TV;
   m_configuration.baseDevice = CECDEVICE_AUDIOSYSTEM;
-  m_configuration.bActivateSource = 1;
+  m_configuration.bActivateSource = SettingsComponent::Get().value(SETTINGS_SECTION_CEC, "activatesource").toBool();
 
   m_configuration.iHDMIPort = (quint8)SettingsComponent::Get().value(SETTINGS_SECTION_CEC, "hdmiport").toInt();
 
@@ -326,6 +327,18 @@ int InputCEC::CecCommand(void *cbParam, const cec_command command)
     case CEC_OPCODE_GIVE_OSD_NAME:
     case CEC_OPCODE_GIVE_PHYSICAL_ADDRESS:
       // ignore those known commands (only pollng from TV)
+      break;
+
+    case CEC_OPCODE_STANDBY:
+      QLOG_DEBUG() << "Got a standby Request";
+      if ((SettingsComponent::Get().value(SETTINGS_SECTION_CEC, "suspendonstandby").toBool()) && PowerComponent::Get().canSuspend())
+      {
+        PowerComponent::Get().Suspend();
+      }
+      else if ((SettingsComponent::Get().value(SETTINGS_SECTION_CEC, "poweroffonstandby").toBool()) && PowerComponent::Get().canPowerOff())
+      {
+        PowerComponent::Get().PowerOff();
+      }
       break;
 
     default:
