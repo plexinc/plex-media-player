@@ -266,7 +266,7 @@ int InputCEC::CecCommand(void *cbParam, const cec_command command)
 {
   InputCEC *cec = (InputCEC*)cbParam;
 
-  QLOG_DEBUG << "CecCommand received " << cec->getCommandParamsList(command);
+  QLOG_DEBUG() << "CecCommand received " << cec->getCommandParamsList(command);
 
   switch(command.opcode)
   {
