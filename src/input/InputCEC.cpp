@@ -232,6 +232,8 @@ int InputCEC::CecLogMessage(void* cbParam, const cec_log_message message)
 int InputCEC::CecKeyPress(void *cbParam, const cec_keypress key)
 {
   InputCEC *cec = (InputCEC*)cbParam;
+  QLOG_DEBUG() << "CecKeyPress : Got key" << key.keycode;
+
   if (cec && key.duration == 0)
   {
     QString cmdString = cec->getCommandString(key.keycode, key.duration);
@@ -263,6 +265,8 @@ QString InputCEC::getCommandParamsList(cec_command command)
 int InputCEC::CecCommand(void *cbParam, const cec_command command)
 {
   InputCEC *cec = (InputCEC*)cbParam;
+
+  QLOG_DEBUG << "CecCommand received " << cec->getCommandParamsList(command);
 
   switch(command.opcode)
   {
@@ -309,19 +313,19 @@ int InputCEC::CecCommand(void *cbParam, const cec_command command)
         }
       }
 
-      QLOG_DEBUG() << "Got CEC Button Up :" << cec->getCommandParamsList(command);
+      QLOG_DEBUG() << "CecCommand : Got CEC Remote Button Down :" << cec->getCommandParamsList(command);
       break;
 
     case CEC_OPCODE_VENDOR_REMOTE_BUTTON_UP:
-      QLOG_DEBUG() << "Got CEC Button Up :" << cec->getCommandParamsList(command);
+      QLOG_DEBUG() << "CecCommand : Got CEC Remote Button Up :" << cec->getCommandParamsList(command);
       break;
 
     case CEC_OPCODE_USER_CONTROL_PRESSED:
-      QLOG_DEBUG() << "Got CEC Press :" << cec->getCommandParamsList(command);
+      QLOG_DEBUG() << "CecCommand : Got CEC User Control Pressed :" << cec->getCommandParamsList(command);
       break;
 
     case CEC_OPCODE_USER_CONTROL_RELEASE:
-      QLOG_DEBUG() << "Got CEC Release :" << cec->getCommandParamsList(command);
+      QLOG_DEBUG() << "Got CEC User Control Release :" << cec->getCommandParamsList(command);
       break;
 
     case CEC_OPCODE_GIVE_OSD_NAME:
@@ -330,7 +334,7 @@ int InputCEC::CecCommand(void *cbParam, const cec_command command)
       break;
 
     case CEC_OPCODE_STANDBY:
-      QLOG_DEBUG() << "Got a standby Request";
+      QLOG_DEBUG() << "CecCommand : Got a standby Request";
       if ((SettingsComponent::Get().value(SETTINGS_SECTION_CEC, "suspendonstandby").toBool()) && PowerComponent::Get().canSuspend())
       {
         PowerComponent::Get().Suspend();
