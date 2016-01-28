@@ -3,11 +3,53 @@
 #include <stdexcept>
 
 #include <QOpenGLContext>
-
-#include <QtGui/QOpenGLFramebufferObject>
-
+#include <QGuiApplication>
 #include <QtQuick/QQuickWindow>
 #include <QOpenGLFunctions>
+
+//#include <private/qguiapplication_p.h>
+//#include <qpa/qplatformintegration.h>
+
+
+
+class QOpenGLContext;
+class QScreen;
+class QWindow;
+class QPlatformWindow;
+class QBackingStore;
+
+class Q_GUI_EXPORT QPlatformNativeInterface : public QObject
+{
+    //Q_OBJECT
+public:
+    virtual void *nativeResourceForIntegration(const QByteArray &resource);
+    virtual void *nativeResourceForContext(const QByteArray &resource, QOpenGLContext *context);
+    virtual void *nativeResourceForScreen(const QByteArray &resource, QScreen *screen);
+    virtual void *nativeResourceForWindow(const QByteArray &resource, QWindow *window);
+    virtual void *nativeResourceForBackingStore(const QByteArray &resource, QBackingStore *backingStore);
+
+    typedef void * (*NativeResourceForIntegrationFunction)();
+    typedef void * (*NativeResourceForContextFunction)(QOpenGLContext *context);
+    typedef void * (*NativeResourceForScreenFunction)(QScreen *screen);
+    typedef void * (*NativeResourceForWindowFunction)(QWindow *window);
+    typedef void * (*NativeResourceForBackingStoreFunction)(QBackingStore *backingStore);
+    virtual NativeResourceForIntegrationFunction nativeResourceFunctionForIntegration(const QByteArray &resource);
+    virtual NativeResourceForContextFunction nativeResourceFunctionForContext(const QByteArray &resource);
+    virtual NativeResourceForScreenFunction nativeResourceFunctionForScreen(const QByteArray &resource);
+    virtual NativeResourceForWindowFunction nativeResourceFunctionForWindow(const QByteArray &resource);
+    virtual NativeResourceForBackingStoreFunction nativeResourceFunctionForBackingStore(const QByteArray &resource);
+
+    virtual QFunctionPointer platformFunction(const QByteArray &function) const;
+
+    virtual QVariantMap windowProperties(QPlatformWindow *window) const;
+    virtual QVariant windowProperty(QPlatformWindow *window, const QString &name) const;
+    virtual QVariant windowProperty(QPlatformWindow *window, const QString &name, const QVariant &defaultValue) const;
+    virtual void setWindowProperty(QPlatformWindow *window, const QString &name, const QVariant &value);
+
+Q_SIGNALS:
+    void windowPropertyChanged(QPlatformWindow *window, const QString &propertyName);
+};
+
 
 #include "QsLog.h"
 #include "utils/Utils.h"
@@ -91,6 +133,11 @@ static void* __stdcall MPGetNativeDisplay(const char* name)
 // Unsupported or not needed. Also, not using Windows-specific calling convention.
 static void* MPGetNativeDisplay(const char* name)
 {
+  QString platform = QGuiApplication::platformName();
+  if (strcmp(name, "wl") == 0 && platform == "wayland") {
+    QPlatformNativeInterface* native = QGuiApplication::platformNativeInterface();
+    return native->nativeResourceForWindow("display", 0);
+  }
   return NULL;
 }
 #endif
