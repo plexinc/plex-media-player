@@ -48,11 +48,19 @@ QString UpdateManager::HaveUpdate()
   {
     // check if this version has been applied
     QString readyFile(GetPath("_readyToApply", dir, false));
+    QString packagesDir(GetPath("packages", dir, false));
+
     QLOG_DEBUG() << "Checking for:" << readyFile;
     if (QFile::exists(readyFile))
     {
       QLOG_DEBUG() << dir << "is not applied";
       return dir;
+    }
+    else if (QFile::exists(packagesDir))
+    {
+      QLOG_DEBUG() << "Removing old packages:" << packagesDir;
+      QDir pdir(packagesDir);
+      pdir.removeRecursively();
     }
   }
 
