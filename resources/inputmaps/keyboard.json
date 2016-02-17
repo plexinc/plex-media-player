@@ -21,6 +21,9 @@
     // map Shift+Letter to action jump+letter
     "Shift\\+([A-Z])": "jump+%1",
 
+    // also map it to normal input
+    "(?:Shift\\+)?([A-Z])": "%1",
+
     "P": "play_pause",
     "Ctrl\\+P": "pause",
     "X": "stop",
@@ -65,7 +68,6 @@
 
     // Windows Media Center keyboard shortcuts
     "Alt\\+(Return|Enter)": "host:fullscreen",
-    "Ctrl\\+P": "pause",
     "Ctrl\\+Shift\\+P": "play_pause",
     "Ctrl\\+Shift\\+S": "stop",
     "Ctrl\\+Shift\\+B": "seek_backward",

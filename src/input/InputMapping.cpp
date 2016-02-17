@@ -52,23 +52,35 @@ bool InputMapping::loadMappings()
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////
-QString InputMapping::mapToAction(const QString& source, const QString& keycode)
+QStringList InputMapping::mapToAction(const QString& source, const QString& keycode)
 {
   // if the source is direct we will just use the keycode as the action
   if (source == "direct")
-    return keycode;
+    return QStringList(keycode);
 
   // first we need to match the source
-  QVariant sourceName = m_sourceMatcher.match(source);
-  if (sourceName.isValid())
+  QVariantList sources = m_sourceMatcher.match(source);
+  if (!sources.isEmpty())
   {
-    QVariant action = m_inputMatcher.value(sourceName.toString())->match(keycode);
-    if (action.isValid())
+    QStringList actionList;
+
+    foreach (const QVariant& src, sources)
     {
-      return action.toString();
+      QVariantList action;
+
+      if (m_inputMatcher.contains(src.toString()))
+        action = m_inputMatcher.value(src.toString())->match(keycode);
+
+      if (action.size() > 0)
+      {
+        foreach (const QVariant& variant, action)
+          actionList << variant.toString();
+      }
     }
+
+    return actionList;
   }
-  return QString();
+  return QStringList();
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
@@ -150,6 +162,7 @@ bool InputMapping::loadMappingDirectory(const QString& path, bool copy)
           foreach(const QString& pattern, inputMap.keys())
             inputMatcher->addMatcher("^" + pattern + "$", inputMap.value(pattern));
 
+          QLOG_DEBUG() << "Successfully loaded inputmap:" << finfo.fileName() << mapping.first;
           m_inputMatcher.insert(mapping.first, inputMatcher);
         }
       }

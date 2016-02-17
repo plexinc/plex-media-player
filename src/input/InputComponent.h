@@ -86,7 +86,7 @@ public:
   void registerHostCommand(const QString& command, QObject* receiver, const char* slot);
 
 signals:
-  void receivedAction(const QString& action);
+  void receivedAction(const QStringList& action);
 
 private Q_SLOTS:
   void remapInput(const QString& source, const QString& keycode, float amount = 1.0);
@@ -94,6 +94,7 @@ private Q_SLOTS:
 private:
   InputComponent(QObject *parent = 0);
   bool addInput(InputBase* input);
+  bool handleHostCommand(const QString& action);
 
   QHash<QString, ReceiverSlot*> m_hostCommands;
   QList<InputBase*> m_inputs;
