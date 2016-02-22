@@ -366,15 +366,6 @@
   {
     "section": "privacy",
     "hidden": false,
-    "values": [
-        {
-          "value": "collectUsageData",
-          "default": true
-        },
-        {
-          "value": "debugLevel",
-          "default": false
-        }
-    ]
+    "values": []
   }
 ]
