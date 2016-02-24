@@ -14,6 +14,7 @@ KonvergoWindow
   minimumWidth: 426
   height: 720
   width: 1280
+  color: "red"
 
   function getMaxHeightArg()
   {
@@ -41,9 +42,10 @@ KonvergoWindow
     settings.localContentCanAccessRemoteUrls: true
     profile.httpUserAgent: components.system.getUserAgent()
     transformOrigin: Item.TopLeft
+    property string webRealSize: "0x0"
 
-    width: Math.min((parent.height * 16) / 9, parent.width)
-    height: Math.min((parent.width * 9) / 16, parent.height)
+    width: parent.width
+    height: parent.height
 
     function getDesiredScale()
     {
@@ -51,6 +53,11 @@ KonvergoWindow
       var horizontalScale = width / 1280;
 
       return Math.min(verticalScale, horizontalScale);
+    }
+
+    function updateRealSize()
+    {
+      runJavaScript("document.documentElement.clientWidth + \"x\" + document.documentElement.clientHeight + \"/\" + window.devicePixelRatio", function(res) { web.webRealSize = res; });
     }
 
     scale:
@@ -158,6 +165,11 @@ KonvergoWindow
     opacity: 0.7
     visible: mainWindow.showDebugLayer
 
+    onVisibleChanged:
+    {
+      web.updateRealSize();
+    }
+
     Text
     {
       id: debugLabel
@@ -171,12 +183,13 @@ KonvergoWindow
       color: "white"
       font.pixelSize: width / 45
       wrapMode: Text.WrapAnywhere
+      //webRealSize: "0x0"
 
       function windowDebug()
       {
         var dbg = mainWindow.debugInfo + "Window and web\n";
-        dbg += "  Window size: " + parent.width + "x" + parent.height + "\n";
-        dbg += "  DevicePixel ratio: " + Screen.devicePixelRatio + "\n";
+        dbg += "  Window size: " + parent.width + "x" + parent.height + "/" + Screen.devicePixelRatio + "\n";
+        dbg += "  Web Real Size: " + web.webRealSize + "\n";
         dbg += "  Web Max Height: " + (webMaxHeight / Screen.devicePixelRatio) + "\n";
         dbg += "  Web scale: " + Math.round(web.scale * 100) / 100 + "\n";
         dbg += "  Desired Scale: " + Math.round(web.getDesiredScale() * 100) / 100 + "\n";

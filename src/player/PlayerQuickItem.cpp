@@ -163,7 +163,7 @@ void PlayerRenderer::render()
 
   // The negative height signals to mpv that the video should be flipped
   // (according to the flipped OpenGL coordinate system).
-  mpv_opengl_cb_draw(m_mpvGL, fbo, m_size.width(), -m_size.height());
+  //mpv_opengl_cb_draw(m_mpvGL, fbo, m_size.width(), -m_size.height());
 
   m_window->resetOpenGLState();
 }
@@ -241,7 +241,7 @@ void PlayerQuickItem::onSynchronize()
     connect(&PlayerComponent::Get(), &PlayerComponent::playbackActive, m_renderer, &PlayerRenderer::onPlaybackActive, Qt::QueuedConnection);
     window()->setPersistentOpenGLContext(true);
     window()->setPersistentSceneGraph(true);
-    window()->setClearBeforeRendering(false);
+    //window()->setClearBeforeRendering(false);
     m_debugInfo = "";
     QOpenGLContext* glctx = QOpenGLContext::currentContext();
     if (glctx && glctx->isValid())
