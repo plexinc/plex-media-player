@@ -55,10 +55,6 @@ foreach(COMP ${components})
 	list(APPEND QT5_CFLAGS ${${mod}_EXECUTABLE_COMPILE_FLAGS})
 endforeach(COMP ${components})
 
-if(WIN32)
-  list(REMOVE_ITEM QT5_CFLAGS -fPIC)
-endif(WIN32)
-
 message(STATUS "Qt version: ${Qt5Core_VERSION_STRING}")
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${QT5_CFLAGS}")
 
