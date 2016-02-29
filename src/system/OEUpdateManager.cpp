@@ -1,5 +1,6 @@
 #include <QProcess>
 #include <QDir>
+#include <QStandardPaths>
 #include "QsLog.h"
 #include "OEUpdateManager.h"
 #include "SystemComponent.h"
@@ -7,6 +8,31 @@
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 QString OEUpdateManager::HaveUpdate()
 {
+  QDir updateDir(QStandardPaths::writableLocation(QStandardPaths::CacheLocation) + "/updates/");
+  if (!updateDir.exists())
+  {
+    QLOG_DEBUG() << "No Update directory found, exiting";
+    return "";
+  }
+  QStringList nonAppliedUpdates;
+
+  // sort update directories, sort by the newest directory first, that way
+  // we apply the latest update downloaded.
+  //
+    foreach (const QString& dir, updateDir.entryList(QDir::NoDotAndDotDot | QDir::Dirs, QDir::Time))
+    {
+      QDir packageDir(GetPath("packages", dir, false));
+
+      if (packageDir.exists())
+      {
+        QLOG_DEBUG() << "Removing old update packages in dir:" << dir;
+        if (!packageDir.removeRecursively())
+        {
+          QLOG_WARN() << "Failed to remove old update packages in dir:" << dir;
+        }
+      }
+    }
+
   return "";
 }
 

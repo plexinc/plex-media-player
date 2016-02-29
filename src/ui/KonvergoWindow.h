@@ -3,6 +3,7 @@
 
 #include <QQuickWindow>
 #include <QEvent>
+#include <utils/osx/OSXUtils.h>
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 class MouseEventFilter : public QObject
@@ -36,7 +37,7 @@ public:
 
   void setFullScreen(bool enable);
 
-  Q_SLOT void otherAppFocus()
+  Q_SLOT void focusWindow()
   {
     setWindowState((Qt::WindowState)((windowState() & ~Qt::WindowMinimized) | Qt::WindowActive));
     raise();
@@ -54,16 +55,22 @@ public:
     emit reloadWebClient();
   }
 
+  Q_SLOT void showWindowIfNeeded();
+
+  static bool IsHidden();
+
+  Q_SLOT void hideMainWindow();
+
 Q_SIGNALS:
   void fullScreenSwitched();
   void enableVideoWindowSignal();
   void debugLayerChanged();
   void debugInfoChanged();
+
   void reloadWebClient();
-
 protected:
-  virtual void focusOutEvent(QFocusEvent * ev);
 
+  virtual void focusOutEvent(QFocusEvent * ev);
 private slots:
   void closingWindow();
   void enableVideoWindow();
@@ -75,6 +82,7 @@ private slots:
   void playerWindowVisible(bool visible);
   void playerPlaybackStarting();
 
+
 private:
   void saveGeometry();
   void loadGeometry();
@@ -85,6 +93,7 @@ private:
   MouseEventFilter* m_eventFilter;
   QTimer* m_infoTimer;
   QString m_debugInfo, m_systemDebugInfo, m_videoInfo;
+
 };
 
 #endif // KONVERGOWINDOW_H

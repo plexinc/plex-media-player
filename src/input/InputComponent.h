@@ -83,10 +83,12 @@ public:
   virtual bool componentExport() { return true; }
   virtual bool componentInitialize();
 
+  void runHostCommand(const QString& hostCommand, const QString& hostArguments = "") const;
   void registerHostCommand(const QString& command, QObject* receiver, const char* slot);
 
 signals:
   void receivedAction(const QString& action);
+  void registeredInput();
 
 private Q_SLOTS:
   void remapInput(const QString& source, const QString& keycode, float amount = 1.0);
@@ -98,6 +100,7 @@ private:
   QHash<QString, ReceiverSlot*> m_hostCommands;
   QList<InputBase*> m_inputs;
   InputMapping* m_mappings;
+
 };
 
 #endif // INPUTADAPTER_H

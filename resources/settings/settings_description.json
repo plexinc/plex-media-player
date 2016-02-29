@@ -83,7 +83,13 @@
       {
         "value": "clientUUID",
         "default": "",
-        "hidden": false
+        "hidden": true
+      },
+      {
+        "value": "runInBackground",
+        "default": false,
+        "hidden": false,
+        "platforms_excluded": [ "oe" ]
       }
     ]
   },

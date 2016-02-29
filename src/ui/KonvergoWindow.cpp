@@ -88,6 +88,7 @@ KonvergoWindow::KonvergoWindow(QWindow* parent) : QQuickWindow(parent), m_debugL
   InputComponent::Get().registerHostCommand("toggleDebug", this, "toggleDebug");
   InputComponent::Get().registerHostCommand("reload", this, "reloadWeb");
   InputComponent::Get().registerHostCommand("fullscreen", this, "toggleFullscreen");
+  InputComponent::Get().registerHostCommand("hide", this, "hideMainWindow");
 
 #ifdef TARGET_RPI
   // On RPI, we use dispmanx layering - the video is on a layer below Konvergo,
@@ -123,6 +124,8 @@ KonvergoWindow::KonvergoWindow(QWindow* parent) : QQuickWindow(parent), m_debugL
 
   connect(qApp, &QCoreApplication::aboutToQuit, this, &KonvergoWindow::saveGeometry);
 
+  connect(&InputComponent::Get(), &InputComponent::registeredInput, this, &KonvergoWindow::showWindowIfNeeded);
+
   if (!SystemComponent::Get().isOpenELEC())
   {
     // this is such a hack. But I could not get it to enter into fullscreen
@@ -138,6 +141,30 @@ KonvergoWindow::KonvergoWindow(QWindow* parent) : QQuickWindow(parent), m_debugL
   }
 
   emit enableVideoWindowSignal();
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////
+void KonvergoWindow::hideMainWindow()
+{
+#ifdef Q_OS_MAC
+  OSXUtils::HideMainWindow();
+#else
+  hide();
+#endif
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////
+void KonvergoWindow::showWindowIfNeeded()
+{
+#ifdef Q_OS_MAC
+  if (OSXUtils::IsWindowHidden())
+    OSXUtils::ShowMainWindow();
+#else
+  if (visibility() == Hidden)
+    show();
+#endif
+
+  focusWindow();
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////
@@ -346,4 +373,14 @@ void KonvergoWindow::toggleDebug()
     updateDebugInfo();
     setProperty("showDebugLayer", true);
   }
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////
+bool KonvergoWindow::IsHidden()
+{
+#ifdef Q_OS_MAC
+  return OSXUtils::IsWindowHidden();
+#else
+  return KonvergoEngine::GetWindow()->visibility() == Hidden;
+#endif
 }

@@ -151,7 +151,17 @@ QVariantMap SystemComponent::systemInformation() const
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 void SystemComponent::exit()
 {
-  qApp->quit();
+  if (SettingsComponent::Get().value(SETTINGS_SECTION_MAIN, "runInBackground").toBool())
+  {
+    // since we want to run in the background, let's not quit here instead just hide the main
+    // window
+    //
+    InputComponent::Get().runHostCommand("hide");
+  }
+  else
+  {
+    qApp->quit();
+  }
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////

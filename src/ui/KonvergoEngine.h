@@ -2,19 +2,30 @@
 #define KONVERGOENGINE_H
 
 #include <QQmlApplicationEngine>
+#include "utils/Utils.h"
 
-static QQmlApplicationEngine* g_qmlEngine = NULL;
-
-class KonvergoEngine
+class KonvergoEngine : public QObject
 {
-public:
-  static QQmlApplicationEngine* Get()
-  {
-    if (!g_qmlEngine)
-      g_qmlEngine = new QQmlApplicationEngine();
+  Q_OBJECT
+  DEFINE_SINGLETON(KonvergoEngine)
 
-    return g_qmlEngine;
+public:
+  KonvergoEngine();
+
+  void loadUI();
+  QQmlApplicationEngine* qmlEngine() const
+  {
+    return m_engine;
   }
+
+  void unload();
+
+  static KonvergoWindow* GetWindow();
+
+private:
+  bool m_isLoaded;
+
+  QQmlApplicationEngine* m_engine;
 };
 
 #endif // KONVERGOENGINE_H

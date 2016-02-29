@@ -1,4 +1,3 @@
-
 #include "QsLog.h"
 #include "InputComponent.h"
 #include "settings/SettingsComponent.h"
@@ -85,6 +84,13 @@ void InputComponent::remapInput(const QString &source, const QString &keycode, f
   // hide mouse if it's visible.
   SystemComponent::Get().setCursorVisibility(false);
 
+  // let everyone know that something is happening
+  emit registeredInput();
+
+  // If the window is hidden we should not process any input.
+  if (KonvergoWindow::IsHidden())
+    return;
+
   QLOG_DEBUG() << "Input received: source:" << source << "keycode:" << keycode;
 
   QString action = m_mappings->mapToAction(source, keycode);
@@ -102,24 +108,7 @@ void InputComponent::remapInput(const QString &source, const QString &keycode, f
         hostArguments = argList.join(" ");
       }
 
-      QLOG_DEBUG() << "Got host command:" << hostCommand << "arguments:" << hostArguments;
-      if (m_hostCommands.contains(hostCommand))
-      {
-        ReceiverSlot* recvSlot = m_hostCommands.value(hostCommand);
-        if (recvSlot)
-        {
-          QLOG_DEBUG() << "Invoking slot" << qPrintable(recvSlot->slot.data());
-          QGenericArgument arg0 = QGenericArgument();
-          if (recvSlot->hasArguments)
-            arg0 = Q_ARG(const QString&, hostArguments);
-          QMetaObject::invokeMethod(recvSlot->receiver, recvSlot->slot.data(),
-                                    Qt::AutoConnection, arg0);
-        }
-      }
-      else
-      {
-        QLOG_WARN() << "No such host command:" << hostCommand;
-      }
+      runHostCommand(hostCommand, hostArguments);
     }
     else
     {
@@ -129,6 +118,29 @@ void InputComponent::remapInput(const QString &source, const QString &keycode, f
   else
   {
     QLOG_WARN() << "Could not map:" << source << keycode << "to any useful action";
+  }
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////
+void InputComponent::runHostCommand(const QString& hostCommand, const QString& hostArguments) const
+{
+  QLOG_DEBUG() << "Got host command:" << hostCommand << "arguments:" << hostArguments;
+  if (m_hostCommands.contains(hostCommand))
+  {
+    ReceiverSlot* recvSlot = m_hostCommands.value(hostCommand);
+    if (recvSlot)
+    {
+      QLOG_DEBUG() << "Invoking slot" << qPrintable(recvSlot->slot.data());
+      QGenericArgument arg0 = QGenericArgument();
+      if (recvSlot->hasArguments)
+        arg0 = Q_ARG(const QString&, hostArguments);
+      QMetaObject::invokeMethod(recvSlot->receiver, recvSlot->slot.data(),
+                                Qt::AutoConnection, arg0);
+    }
+  }
+  else
+  {
+    QLOG_WARN() << "No such host command:" << hostCommand;
   }
 }
 
