@@ -17,6 +17,7 @@
 //
 #define WEBUI_MAX_HEIGHT 1440.0
 #define WEBUI_SIZE QSize(1280, 720)
+#define WINDOWW_MIN_SIZE QSize(426, 240)
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 class MouseEventFilter : public QObject
@@ -42,6 +43,7 @@ class KonvergoWindow : public QQuickWindow
   Q_PROPERTY(qreal webHeightMax READ webHeightMax NOTIFY webScaleChanged)
   Q_PROPERTY(QSize webUISize READ webUISize NOTIFY webScaleChanged)
   Q_PROPERTY(qreal windowScale READ windowScale NOTIFY webScaleChanged)
+  Q_PROPERTY(QSize windowMinSize READ windowMinSize NOTIFY webScaleChanged)
 
 public:
   static void RegisterClass();
@@ -78,6 +80,7 @@ public:
   qreal webScale() { return CalculateWebScale(size(), devicePixelRatio()); }
   qreal webHeightMax() { return WEBUI_MAX_HEIGHT; }
   QSize webUISize() { return WEBUI_SIZE; }
+  QSize windowMinSize() { return WINDOWW_MIN_SIZE; }
   static qreal CalculateScale(const QSize& size);
   static qreal CalculateWebScale(const QSize& size, qint32 devicePixelRatio);
 
@@ -98,7 +101,7 @@ private slots:
   void enableVideoWindow();
   void onVisibilityChanged(QWindow::Visibility visibility);
   void updateMainSectionSettings(const QVariantMap& values);
-  void updateFullscreenState();
+  void updateFullscreenState(bool saveGeo = true);
   void onScreenCountChanged(int newCount);
   void updateDebugInfo();
   void playerWindowVisible(bool visible);
@@ -109,6 +112,9 @@ private:
   void saveGeometry();
   void loadGeometry();
   QRect loadGeometryRect();
+  bool fitsInScreens(const QRect& rc);
+  QScreen* loadLastScreen();
+
   bool m_debugLayer;
   MouseEventFilter* m_eventFilter;
   qreal m_lastScale;
