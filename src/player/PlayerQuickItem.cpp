@@ -217,12 +217,13 @@ void PlayerRenderer::on_update(void *ctx)
 {
   PlayerRenderer *self = (PlayerRenderer *)ctx;
   // QQuickWindow::scheduleRenderJob is expected to be called from the GUI thread but
-  // is thread-safe when using the QSGThreadedRenderLoop, which we can detect by checking
-  // if QQuickWindow::beforeSynchronizing wasn't called from the GUI thread.
-  if (self->thread() != self->m_window->thread())
-    self->m_window->scheduleRenderJob(new RequestRepaintJob(self->m_window), QQuickWindow::NoStage);
-  else
+  // is thread-safe when using the QSGThreadedRenderLoop. We can detect a non-threaded render
+  // loop by checking if QQuickWindow::beforeSynchronizing was called from the GUI thread
+  // (which affects the QObject::thread() of the PlayerRenderer).
+  if (self->thread() == self->m_window->thread())
     QMetaObject::invokeMethod(self->m_window, "update", Qt::QueuedConnection);
+  else
+    self->m_window->scheduleRenderJob(new RequestRepaintJob(self->m_window), QQuickWindow::NoStage);
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
