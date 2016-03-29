@@ -7,6 +7,7 @@
 #include <QtQml>
 #include <QtWebEngine/qtwebengineglobal.h>
 #include <QErrorMessage>
+#include <QOpenGLContext>
 
 #include "shared/Names.h"
 #include "system/SystemComponent.h"
@@ -50,6 +51,33 @@ static void preinitQt()
     QCoreApplication::setAttribute(Qt::AA_UseOpenGLES);
 #endif
 }
+
+#ifdef Q_OS_WIN32
+
+/////////////////////////////////////////////////////////////////////////////////////////
+static void probeOpenGLES()
+{
+  if (!QCoreApplication::testAttribute(Qt::AA_UseOpenGLES))
+    return;
+
+  QList<int> versions = { 3, 2 };
+  for (auto version : versions)
+  {
+    QLOG_INFO() << "Trying GLES version" << version;
+    QSurfaceFormat fmt = QSurfaceFormat::defaultFormat();
+    fmt.setMajorVersion(version);
+    QOpenGLContext ctx;
+    ctx.setFormat(fmt);
+    if (ctx.create())
+    {
+      QLOG_INFO() << "Using GLES version" << version;
+      QSurfaceFormat::setDefaultFormat(fmt);
+      break;
+    }
+  }
+}
+
+#endif
 
 /////////////////////////////////////////////////////////////////////////////////////////
 char** appendCommandLineArguments(int argc, char **argv, const QStringList& args)
@@ -154,6 +182,7 @@ int main(int argc, char *argv[])
     }
 
 #ifdef Q_OS_WIN32
+    probeOpenGLES();
     initD3DDevice();
 #endif
 
