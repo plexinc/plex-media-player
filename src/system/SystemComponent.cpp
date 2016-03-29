@@ -5,6 +5,7 @@
 #include <QGuiApplication>
 #include <QDesktopServices>
 #include <QDir>
+#include <QTimeZone>
 
 #include "input/InputComponent.h"
 #include "SystemComponent.h"
@@ -305,4 +306,21 @@ void SystemComponent::runUserScript(QString script)
     QLOG_WARN() << "Could not find script:" << scriptPath;
   }
 }
+
+/////////////////////////////////////////////////////////////////////////////////////////
+QVariantList SystemComponent::allTimezones()
+{
+  QVariantList tzs;
+
+  for (const QByteArray& tzId : QTimeZone::availableTimeZoneIds())
+  {
+    QTimeZone tz(tzId);
+    if (tz.isValid())
+      tzs << QVariantMap({{"code", QVariant(tzId)}, {"description", QVariant(tz.displayName(QTimeZone::GenericTime))}});
+  }
+
+  return tzs;
+}
+
+
 

@@ -42,6 +42,8 @@ public:
 
   Q_INVOKABLE void runUserScript(QString script);
 
+  Q_INVOKABLE QVariantList allTimezones();
+
   // possible os types type enum
   enum PlatformType
   {
