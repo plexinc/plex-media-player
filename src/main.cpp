@@ -86,7 +86,8 @@ int main(int argc, char *argv[])
     parser.setApplicationDescription("Plex Media Player");
     parser.addHelpOption();
     parser.addVersionOption();
-    parser.addOptions({{{"l", "licenses"}, "Show license information"}});
+    parser.addOptions({{{"l", "licenses"}, "Show license information"},
+                       {{"m", "minimized"}, "Start PMP with a minimized main window"}});
 
     char **newArgv = appendCommandLineArguments(argc, argv, g_qtFlags);
     argc += g_qtFlags.size();
@@ -183,6 +184,7 @@ int main(int argc, char *argv[])
 
     KonvergoWindow::RegisterClass();
     Globals::SetContextProperty("components", &ComponentManager::Get().getQmlPropertyMap());
+    Globals::SetContextProperty("minimized", parser.isSet("minimized"));
 
     // the only way to detect if QML parsing fails is to hook to this signal and then see
     // if we get a valid object passed to it. Any error messages will be reported on stderr

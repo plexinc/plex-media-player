@@ -103,6 +103,7 @@ private:
   QRect loadGeometryRect();
   bool fitsInScreens(const QRect& rc);
   QScreen* loadLastScreen();
+  bool fullscreenSetting() const;
 
   bool m_debugLayer;
   qreal m_lastScale;

@@ -21,6 +21,8 @@
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 KonvergoWindow::KonvergoWindow(QWindow* parent) : QQuickWindow(parent), m_debugLayer(false), m_lastScale(1.0)
 {
+  auto minimized = Globals::ContextProperty("minimized").toBool();
+
   // NSWindowCollectionBehaviorFullScreenPrimary is only set on OSX if Qt::WindowFullscreenButtonHint is set on the window.
   setFlags(flags() | Qt::WindowFullscreenButtonHint);
 
@@ -71,7 +73,10 @@ KonvergoWindow::KonvergoWindow(QWindow* parent) : QQuickWindow(parent), m_debugL
 #ifdef KONVERGO_OPENELEC
   setVisibility(QWindow::FullScreen);
 #else
-  updateFullscreenState(false);
+  if (minimized)
+    setVisibility(QWindow::Minimized);
+  else
+    updateFullscreenState(false);
 #endif
 
   emit enableVideoWindowSignal();
@@ -80,7 +85,7 @@ KonvergoWindow::KonvergoWindow(QWindow* parent) : QQuickWindow(parent), m_debugL
 /////////////////////////////////////////////////////////////////////////////////////////
 void KonvergoWindow::closingWindow()
 {
-  if (!SettingsComponent::Get().value(SETTINGS_SECTION_MAIN, "fullscreen").toBool())
+  if (!fullscreenSetting())
     saveGeometry();
 
   qApp->quit();
@@ -131,7 +136,7 @@ QRect KonvergoWindow::loadGeometry()
 
   QRect nsize = rc;
 
-  if (SettingsComponent::Get().value(SETTINGS_SECTION_MAIN, "fullscreen").toBool())
+  if (fullscreenSetting())
   {
     QLOG_DEBUG() << "Load FullScreen geo...";
 
@@ -155,6 +160,11 @@ QRect KonvergoWindow::loadGeometry()
   }
 
   return nsize;
+}
+/////////////////////////////////////////////////////////////////////////////////////////
+bool KonvergoWindow::fullscreenSetting() const
+{
+  return SettingsComponent::Get().value(SETTINGS_SECTION_MAIN, "fullscreen").toBool();
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
@@ -226,9 +236,7 @@ void KonvergoWindow::updateMainSectionSettings(const QVariantMap& values)
 {
   // update mouse visibility if needed
   if (values.find("disablemouse") != values.end())
-  {
     SystemComponent::Get().setCursorVisibility(!SettingsComponent::Get().value(SETTINGS_SECTION_MAIN, "disablemouse").toBool());
-  }
 
   if (values.find("fullscreen") == values.end())
     return;
@@ -239,7 +247,7 @@ void KonvergoWindow::updateMainSectionSettings(const QVariantMap& values)
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 void KonvergoWindow::updateFullscreenState(bool saveGeo)
 {
-  if (SettingsComponent::Get().value(SETTINGS_SECTION_MAIN, "fullscreen").toBool() || SystemComponent::Get().isOpenELEC())
+  if (fullscreenSetting() || SystemComponent::Get().isOpenELEC())
   {
     // if we were go from windowed to fullscreen
     // we want to store our current windowed position
@@ -255,13 +263,21 @@ void KonvergoWindow::updateFullscreenState(bool saveGeo)
   }
 }
 
+/////////////////////////////////////////////////////////////////////////////////////////
+QHash<QWindow::Visibility, QString> g_windowStates = {{QWindow::Windowed, "Windowed"},
+                                                      {QWindow::FullScreen, "FullScreen"},
+                                                      {QWindow::Minimized, "Minimized"},
+                                                      {QWindow::Maximized, "Maximized"},
+                                                      {QWindow::AutomaticVisibility, "AutoVisibility"},
+                                                      {QWindow::Hidden, "Hidden"}};
+
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 void KonvergoWindow::onVisibilityChanged(QWindow::Visibility visibility)
 {
-  QLOG_DEBUG() << (visibility == QWindow::FullScreen ? "FullScreen" : "Windowed") << "visbility set to " << visibility;
+  QLOG_DEBUG() << "Main window visibility updated to:" << g_windowStates.value(visibility);
 
-  if (visibility == QWindow::Windowed)
-    loadGeometry();
+  if (visibility == QWindow::Windowed || visibility == QWindow::FullScreen)
+    updateFullscreenState(true);
 
   if (visibility == QWindow::FullScreen)
     PowerComponent::Get().setFullscreenState(true);
