@@ -107,6 +107,13 @@ private:
 
   QTime m_longHoldTimer;
   QString m_currentAction;
+
+  QTime m_sequenceTimer;
+  CachedRegexMatcher* m_currentSequenceMatcher;
+  QString m_currentSequenceSource;
+
+  void handleSequenceStart(const QString& source, CachedRegexMatcher* matcher);
+  bool handleSequenceInput(const QString& keycode);
 };
 
 #endif // INPUTADAPTER_H

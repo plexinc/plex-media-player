@@ -25,6 +25,7 @@
 #endif
 
 #define LONG_HOLD_MSEC 500
+#define SEQUENCE_TIMEOUT 1500
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 InputComponent::InputComponent(QObject* parent) : ComponentBase(parent), m_currentActionCount(0)
@@ -167,6 +168,20 @@ void InputComponent::remapInput(const QString &source, const QString &keycode, b
   // hide mouse if it's visible.
   SystemComponent::Get().setCursorVisibility(false);
 
+  // are we currently in a sequence?
+  if (m_currentSequenceMatcher != nullptr && m_currentSequenceSource == source)
+  {
+    if (handleSequenceInput(keycode))
+      return;
+  }
+
+  auto sequences = m_mappings->mapToSequence(source, keycode);
+  if (sequences != nullptr)
+  {
+    handleSequenceStart(source, sequences);
+    return;
+  }
+
   auto actions = m_mappings->mapToAction(source, keycode);
   if (actions.isEmpty())
   {
@@ -193,6 +208,32 @@ void InputComponent::remapInput(const QString &source, const QString &keycode, b
         handleAction(map.value("short").toString());
       }
     }
+  }
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////
+bool InputComponent::handleSequenceInput(const QString& keycode)
+{
+  auto matcher = m_currentSequenceMatcher;
+  m_currentSequenceMatcher = nullptr;
+
+  // and we have not timed out our sequence
+  if (m_sequenceTimer.elapsed() < SEQUENCE_TIMEOUT)
+  {
+    auto actions = matcher->match(keycode);
+    if (!actions.isEmpty())
+    {
+      for (auto action : actions)
+        handleAction(action.toString());
+      return true;
+    }
+
+    return false;
+  }
+  else
+  {
+    QLOG_DEBUG() << "Sequence timed out, waited for" << m_sequenceTimer.elapsed() << "ms";
+    return false;
   }
 }
 
@@ -225,3 +266,14 @@ void InputComponent::registerHostCommand(const QString& command, QObject* receiv
     QLOG_ERROR() << "Slot for host command missing, or has incorrect signature!";
   }
 }
+
+/////////////////////////////////////////////////////////////////////////////////////////
+void InputComponent::handleSequenceStart(const QString& source, CachedRegexMatcher* matcher)
+{
+  QLOG_DEBUG() << "Start sequence matching, waiting for additional input";
+  m_currentSequenceMatcher = matcher;
+  m_currentSequenceSource = source;
+  m_sequenceTimer.start();
+}
+
+

@@ -81,6 +81,9 @@ bool InputMapping::loadMappingFile(const QString& path, QPair<QString, QVariantM
   if (doc.isObject())
   {
     auto obj = doc.object();
+
+    QLOG_DEBUG() << obj.toVariantMap();
+
     if (!obj.contains("name"))
     {
       QLOG_WARN() << "Missing elements 'name' from mapping file:" << path;
@@ -98,6 +101,8 @@ bool InputMapping::loadMappingFile(const QString& path, QPair<QString, QVariantM
       QLOG_WARN() << "Missing element 'mapping' from mapping file:" << path;
       return false;
     }
+
+    QLOG_DEBUG() << "Loaded mappings from:" << path;
 
     mappingPair = qMakePair(obj["name"].toString(), obj.toVariantMap());
     return true;
@@ -137,16 +142,21 @@ bool InputMapping::loadMappingDirectory(const QString& path, bool copy)
       QPair<QString, QVariantMap> mapping;
       if (loadMappingFile(finfo.absoluteFilePath(), mapping))
       {
+        QLOG_DEBUG() << mapping;
         // add the source regexp to the matcher
         if (m_sourceMatcher.addMatcher(mapping.second.value("idmatcher").toString(), mapping.first))
         {
           // get the input map and add it to a new CachedMatcher
-          QVariantMap inputMap = mapping.second.value("mapping").toMap();
-          auto  inputMatcher = new CachedRegexMatcher(this);
-          for(const QString& pattern : inputMap.keys())
-            inputMatcher->addMatcher("^" + pattern + "$", inputMap.value(pattern));
-
+          auto inputMap = mapping.second.value("mapping").toMap();
+          auto inputMatcher = new CachedRegexMatcher(inputMap, this);
           m_inputMatcher.insert(mapping.first, inputMatcher);
+
+          // load sequence mappings
+          auto sequences = mapping.second.value("sequences").toMap();
+          QLOG_DEBUG() << sequences.keys();
+          auto sequenceMatcher = new CachedRegexMatcher(this);
+          sequenceMatcher->addRegexMatches(sequences);
+          m_sequenceMatcher.insert(mapping.first, sequenceMatcher);
         }
       }
     }
@@ -154,3 +164,16 @@ bool InputMapping::loadMappingDirectory(const QString& path, bool copy)
 
   return true;
 }
+
+/////////////////////////////////////////////////////////////////////////////////////////
+CachedRegexMatcher* InputMapping::mapToSequence(const QString& source, const QString& keycode)
+{
+  for (auto src : m_sourceMatcher.match(source))
+  {
+    if (m_sequenceMatcher.contains(src.toString()))
+      return m_sequenceMatcher.value(src.toString())->matchRegex(keycode);
+  }
+  return nullptr;
+}
+
+

@@ -72,3 +72,63 @@ void CachedRegexMatcher::clear()
   m_matcherCache.clear();
   m_matcherList.clear();
 }
+
+/////////////////////////////////////////////////////////////////////////////////////////
+void CachedRegexMatcher::addMatches(const QVariantMap& map)
+{
+  for (auto key : map.keys())
+    addMatcher("^" + key + "$", map.value(key));
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////
+bool CachedRegexMatcher::addMatcher(const QString& pattern, CachedRegexMatcher* subMatcher)
+{
+  QRegExp match(pattern);
+  if (!match.isValid())
+  {
+    QLOG_WARN() << "Could not compile pattern:" << pattern;
+    return false;
+  }
+
+  m_matcherRegexList << qMakePair(pattern, subMatcher);
+  return true;
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////
+void CachedRegexMatcher::addRegexMatches(const QVariantMap& map)
+{
+  for (auto key : map.keys())
+  {
+    if (map.value(key).type() != QVariant::Map)
+      continue;
+
+    auto seq2 = map.value(key).toMap();
+    auto crm = new CachedRegexMatcher(seq2, this);
+    addMatcher("^" + key + "$", crm);
+    QLOG_DEBUG() << "Added sequence starting with:" << key;
+  }
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////
+CachedRegexMatcher* CachedRegexMatcher::matchRegex(const QString& input)
+{
+  if (m_matcherRegexCache.contains(input))
+  {
+    return m_matcherRegexCache.value(input);
+  }
+  else
+  {
+    for (auto match : m_matcherRegexList)
+    {
+      if (match.first.indexIn(input) != -1)
+      {
+        m_matcherRegexCache.insert(input, match.second);
+        return match.second;
+      }
+    }
+  }
+
+  return nullptr;
+}
+
+

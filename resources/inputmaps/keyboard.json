@@ -1,8 +1,15 @@
 {
   "name": "Keyboard Generic",
   "idmatcher": "Keyboard.*",
-  "mapping":
-  {
+  "sequences": {
+    "F1": {
+      "A": "home"
+    },
+    "F2": {
+      "A": "host:crash!"
+    }
+  },
+  "mapping": {
     // standard navigation, we allow shift modifiers
     "(Shift\\+)?Left": "left",
     "(Shift\\+)?Right": "right",
@@ -33,6 +40,7 @@
     "B": "back",
     "H": "home",
     "A": "cycle_audio",
+    "Ctrl\\+F": "search",
     "Ctrl\\+A": "cycle_audio_back",
     "L": "cycle_subtitles",
     "Ctrl\\+L": "cycle_subtitles_back",

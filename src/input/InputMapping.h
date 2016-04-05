@@ -17,6 +17,7 @@ public:
   explicit InputMapping(QObject *parent = nullptr);
   bool loadMappings();
   QVariantList mapToAction(const QString& source, const QString& keycode);
+  CachedRegexMatcher* mapToSequence(const QString& source, const QString& keycode);
 
 private Q_SLOTS:
   void dirChange();
@@ -31,6 +32,7 @@ private:
   QFileSystemWatcher* m_watcher;
 
   QHash<QString, CachedRegexMatcher*> m_inputMatcher;
+  QHash<QString, CachedRegexMatcher*> m_sequenceMatcher;
   CachedRegexMatcher m_sourceMatcher;
 };
 
