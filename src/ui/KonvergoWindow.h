@@ -65,6 +65,8 @@ public:
     emit reloadWebClient();
   }
 
+  // we have our own function for this so we can wrap the native OSX stuff.
+  bool isWindowHidden();
   qreal windowScale() { return CalculateScale(size()); }
   qreal webScale() { return CalculateWebScale(size(), devicePixelRatio()); }
   qreal webHeightMax() { return WEBUI_MAX_HEIGHT; }

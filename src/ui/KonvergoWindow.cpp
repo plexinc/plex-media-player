@@ -37,6 +37,17 @@ KonvergoWindow::KonvergoWindow(QWindow* parent) : QQuickWindow(parent), m_debugL
   InputComponent::Get().registerHostCommand("toggleDebug", this, "toggleDebug");
   InputComponent::Get().registerHostCommand("reload", this, "reloadWeb");
   InputComponent::Get().registerHostCommand("fullscreen", this, "toggleFullscreen");
+  InputComponent::Get().registerHostCommand("minimize", [=]()
+  {
+#ifdef Q_OS_MAC
+    if (isFullScreen())
+      OSXUtils::HideMainWindow();
+    else
+      setVisibility(Minimized);
+#else
+    setVisibility(Minimized);
+#endif
+  });
 
 #ifdef TARGET_RPI
   // On RPI, we use dispmanx layering - the video is on a layer below Konvergo,
@@ -64,6 +75,16 @@ KonvergoWindow::KonvergoWindow(QWindow* parent) : QQuickWindow(parent), m_debugL
 
   connect(&PlayerComponent::Get(), &PlayerComponent::playbackStarting,
           this, &KonvergoWindow::playerPlaybackStarting);
+
+  // focus this window when we get input
+  connect(&InputComponent::Get(), &InputComponent::receivedInput, [=]()
+  {
+    setVisibility(isFullScreen() ? FullScreen : Windowed);
+#ifdef Q_OS_MAC
+    if (isFullScreen())
+      otherAppFocus();
+#endif
+  });
 
   // this is using old syntax because ... reasons. QQuickCloseEvent is not public class
   connect(this, SIGNAL(closing(QQuickCloseEvent*)), this, SLOT(closingWindow()));
@@ -436,4 +457,14 @@ QScreen* KonvergoWindow::loadLastScreen()
   return nullptr;
 }
 
+/////////////////////////////////////////////////////////////////////////////////////////
+bool KonvergoWindow::isWindowHidden()
+{
+  auto hidden = (visibility() == Minimized || visibility() == Hidden);
 
+#ifdef Q_OS_MAC
+  hidden = OSXUtils::IsMainWindowHidden();
+#endif
+
+  return hidden;
+}

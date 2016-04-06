@@ -6,6 +6,8 @@
 #include "InputKeyboard.h"
 #include "InputSocket.h"
 #include "InputRoku.h"
+#include "ui/Globals.h"
+#include "ui/KonvergoWindow.h"
 
 #ifdef Q_OS_MAC
 #include "apple/InputAppleRemote.h"
@@ -155,6 +157,7 @@ void InputComponent::remapInput(const QString &source, const QString &keycode, b
 {
   QLOG_DEBUG() << "Input received: source:" << source << "keycode:" << keycode << "pressed:" << (pressDown ? "down" : "release");
 
+  auto skipInput = Globals::MainWindow()->isWindowHidden();
   emit receivedInput();
 
   if (!pressDown)
@@ -175,6 +178,9 @@ void InputComponent::remapInput(const QString &source, const QString &keycode, b
 
     return;
   }
+
+  if (skipInput)
+    return;
 
   auto actions = m_mappings->mapToAction(source, keycode);
   if (actions.isEmpty())
