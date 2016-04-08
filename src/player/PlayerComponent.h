@@ -172,6 +172,7 @@ private:
   void checkCurrentAudioDevice(const QSet<QString>& old_devs, const QSet<QString>& new_devs);
   void appendAudioFormat(QTextStream& info, const QString& property) const;
   void initializeCodecSupport();
+  void updateVideoAspectSettings();
 
   mpv::qt::Handle m_mpv;
 
