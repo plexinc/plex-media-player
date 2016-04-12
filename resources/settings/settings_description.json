@@ -98,6 +98,11 @@
           ["yes", "yes"],
           ["minimized", "minimized"]
         ]
+      },
+      {
+        "value": "showPowerOptions",
+        "default": true,
+        "hidden": true
       }
     ]
   },
