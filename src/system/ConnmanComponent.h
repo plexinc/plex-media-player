@@ -36,7 +36,7 @@ public:
 
 Q_SIGNALS:
   // Webclient events
-  void wifiEnableChanged();
+  void wifiEnableChanged(bool enabled);
   void wifiScanCompleted();
   void wifiConnectedChanged(QString network,  bool connected);
   void wifiNetworkListChanged(QStringList networks);

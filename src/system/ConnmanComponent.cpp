@@ -325,7 +325,7 @@ void ConnmanComponent::technologyPoweredChanged(const bool &powered)
     QLOG_DEBUG() << "Enable State changed for technology" << tech->name() << "( set to " << powered << ")";
     emit enableStateChanged(tech->name(), powered);
     if (tech->name().toLower() == CONNMAN_TECH_WIFI)
-      emit wifiEnableChanged();
+      emit wifiEnableChanged(powered);
   }
 }
 
