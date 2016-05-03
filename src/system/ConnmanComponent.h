@@ -54,6 +54,8 @@ private:
 
   NetworkManager* m_networkManager;
   UserAgent* m_userAgent;
+  QVector<NetworkTechnology *> m_technologies;
+  QVector<NetworkService*> m_services;
 
   // technologies related functions
   QStringList getTechnologies();
@@ -74,7 +76,8 @@ private:
   NetworkTechnology *getTechnologyForService(NetworkService *service);
   QString getServiceNameFromPath(QString path);
   NetworkService* getServiceFromPath(QString path);
-  void HookServiceEvents(NetworkService *service);
+  void HookTechnologiesEvents();
+  void HookServicesEvents();
 
 private slots:
   // manager events

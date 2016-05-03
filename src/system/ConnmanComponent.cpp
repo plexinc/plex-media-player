@@ -230,7 +230,19 @@ bool ConnmanComponent::disconnectService(QString technology, QString service)
 void ConnmanComponent::managerTechnologiesChanged()
 {
   QLOG_DEBUG() << "Technologies list changed, updating...";
-  foreach(NetworkTechnology *tech, m_networkManager->getTechnologies())
+  HookTechnologiesEvents();
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////
+void ConnmanComponent::HookTechnologiesEvents()
+{
+  // disconnect previous objects
+  foreach(NetworkTechnology *tech, m_technologies)
+    tech->disconnect();
+
+  m_technologies = m_networkManager->getTechnologies();
+
+  foreach(NetworkTechnology *tech, m_technologies)
   {
     connect(tech, &NetworkTechnology::poweredChanged, this,
             &ConnmanComponent::technologyPoweredChanged);
@@ -245,10 +257,8 @@ void ConnmanComponent::managerTechnologiesChanged()
 void ConnmanComponent::managerServiceListChanged()
 {
   QLOG_DEBUG() << "Manager signaled service list change, updating ...";
-  foreach(NetworkService *serv, m_networkManager->getServices())
-  {
-    HookServiceEvents(serv);
-  }
+
+  HookServicesEvents();
 
   foreach(NetworkTechnology *tech,m_networkManager->getTechnologies())
   {
@@ -259,6 +269,23 @@ void ConnmanComponent::managerServiceListChanged()
   }
 
   QVariantMap map;
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////
+void ConnmanComponent::HookServicesEvents()
+{
+  foreach(NetworkService *serv, m_services)
+    serv->disconnect();
+
+  m_services = m_networkManager->getServices();
+
+  foreach(NetworkService *service, m_services)
+  {
+    connect(service, &NetworkService::connectedChanged, this, &ConnmanComponent::serviceConnectedChanged);
+    connect(service, &NetworkService::ipv4Changed, this, &ConnmanComponent::serviceConfigChanged);
+    connect(service, &NetworkService::nameserversChanged, this, &ConnmanComponent::serviceConfigChanged);
+    connect(service, &NetworkService::proxyChanged, this, &ConnmanComponent::serviceConfigChanged);
+  }
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////
@@ -322,10 +349,7 @@ void ConnmanComponent::technologyScanFinished()
     QLOG_DEBUG() << "Scan finished for technology" << tech->name() << "( " << services.size() << "services )";
 
     // we have to hook all services events
-    foreach(NetworkService *serv, m_networkManager->getServices(tech->name()))
-    {
-      HookServiceEvents(serv);
-    }
+    HookServicesEvents();
 
     emit serviceListChanged(tech->name(), services);
 
@@ -422,15 +446,6 @@ NetworkService *ConnmanComponent::getServiceFromPath(QString path)
   }
 
   return nullptr;
-}
-
-/////////////////////////////////////////////////////////////////////////////////////////
-void ConnmanComponent::HookServiceEvents(NetworkService *service)
-{
-  connect(service, &NetworkService::connectedChanged, this, &ConnmanComponent::serviceConnectedChanged);
-  connect(service, &NetworkService::ipv4Changed, this, &ConnmanComponent::serviceConfigChanged);
-  connect(service, &NetworkService::nameserversChanged, this, &ConnmanComponent::serviceConfigChanged);
-  connect(service, &NetworkService::proxyChanged, this, &ConnmanComponent::serviceConfigChanged);
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////
