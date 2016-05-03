@@ -1,0 +1,2 @@
+FIXES:
+  - Fixed CEC input regression 
