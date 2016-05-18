@@ -108,6 +108,13 @@ int main(int argc, char *argv[])
     QSurfaceFormat::setDefaultFormat(format);
 #endif
 
+    // Qt calls setlocale(LC_ALL, "") in a bunch of places, which breaks
+    // float/string processing in mpv and ffmpeg.
+#ifdef Q_OS_UNIX
+    qputenv("LC_ALL", "C");
+    qputenv("LC_NUMERIC", "C");
+#endif
+
     preinitQt();
 
     QGuiApplication app(argc, newArgv);
@@ -155,10 +162,6 @@ int main(int argc, char *argv[])
     initD3DDevice();
 #endif
 
-#ifdef Q_OS_UNIX
-    setlocale(LC_NUMERIC, "C");
-#endif
-
     // Initialize all the components. This needs to be done
     // early since most everything else relies on it
     //
@@ -169,12 +172,6 @@ int main(int argc, char *argv[])
       qputenv("QTWEBENGINE_REMOTE_DEBUGGING", "0.0.0.0:9992");
 
     QtWebEngine::initialize();
-
-    // Qt and QWebEngineProfile set the locale, which breaks parsing and
-    // formatting float numbers in a few countries.
-#ifdef Q_OS_UNIX
-    setlocale(LC_NUMERIC, "C");
-#endif
 
     // start our helper
     HelperLauncher::Get().connectToHelper();
