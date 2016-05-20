@@ -303,6 +303,9 @@ void ConnmanComponent::agentUserInputRequested(const QString &servicePath, const
 
   QLOG_DEBUG() << "Requesting password for technology" << tech->name() << ", service" << service->name();
   emit requestServicePassword(tech->name(), service->name());
+  if (tech->name().toLower() == CONNMAN_TECH_WIFI)
+    emit wifiPasswordRequired(service->name());
+
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////
