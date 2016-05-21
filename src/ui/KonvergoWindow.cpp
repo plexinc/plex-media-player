@@ -212,6 +212,22 @@ void KonvergoWindow::setFullScreen(bool enable)
   SettingsComponent::Get().setValue(SETTINGS_SECTION_MAIN, "fullscreen", enable);
 }
 
+void KonvergoWindow::setAlwaysOnTop(bool enable)
+{
+  QLOG_DEBUG() << "setting always on top = " << enable;
+
+  Qt::WindowFlags flags = this->flags();
+  Qt::WindowFlags triggerFlags = Qt::WindowStaysOnTopHint;
+#ifdef Q_OS_LINUX
+  triggerFlags = triggerFlags | Qt::X11BypassWindowManagerHint;
+#endif
+
+  flags = enable ? (flags | triggerFlags) : (flags ^ triggerFlags);
+
+  this->setFlags(flags);
+  this->show();
+}
+
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 void KonvergoWindow::playerWindowVisible(bool visible)
 {

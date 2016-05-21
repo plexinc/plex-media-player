@@ -33,6 +33,7 @@ class KonvergoWindow : public QQuickWindow
   Q_PROPERTY(QSize webUISize READ webUISize NOTIFY webScaleChanged)
   Q_PROPERTY(qreal windowScale READ windowScale NOTIFY webScaleChanged)
   Q_PROPERTY(QSize windowMinSize READ windowMinSize NOTIFY webScaleChanged)
+  Q_PROPERTY(bool alwaysOnTop READ isAlwaysOnTop WRITE setAlwaysOnTop)
 
 public:
   static void RegisterClass();
@@ -46,6 +47,13 @@ public:
   }
 
   void setFullScreen(bool enable);
+
+  bool isAlwaysOnTop()
+  {
+	  return ((flags() & Qt::WindowStaysOnTopHint));
+  }
+
+  void setAlwaysOnTop(bool enable);
 
   Q_SLOT void otherAppFocus()
   {
