@@ -76,7 +76,8 @@ QStringList ConnmanComponent::getServices(QString technology)
   QStringList services;
   foreach(NetworkService *serv, m_networkManager->getServices(technology))
   {
-    services << serv->name();
+    if (!serv->name().isEmpty())
+      services << serv->name();
   }
   return services;
 }
