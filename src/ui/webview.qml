@@ -21,6 +21,7 @@ KonvergoWindow
       MenuItem
       {
         text: "Always on top"
+        shortcut: "Ctrl+Meta+A"
         checkable: true
         onTriggered:
         {
