@@ -44,6 +44,24 @@
         "hidden": true
       },
       {
+        "value": "timeZoneMain",
+        "default": "America",
+        "hidden": false,
+        "platforms": [ "oe" ],
+        "possible_values" : [
+        ["America", "America"]
+        ]
+      },
+      {
+       "value": "timeZoneRegion",
+       "default": "Los_Angeles",
+       "hidden": false,
+       "platforms": [ "oe" ],
+       "possible_values" : [
+       ["Los_Angeles", "Los_Angeles"]
+       ]
+      },
+      {
         "value": "automaticUpdates",
         "default": true
       },
@@ -123,26 +141,7 @@
         "value": "useSystemAudioCodecs2",
         "default": true,
         "hidden": false
-      },
-      {
-         "value": "timeZoneMain",
-         "default": "America",
-         "hidden": false,
-         "platforms": [ "oe" ],
-         "possible_values" : [
-         ["America", "America"]
-         ]
-      },
-      {
-         "value": "timeZoneRegion",
-         "default": "Los_Angeles",
-         "hidden": false,
-         "platforms": [ "oe" ],
-         "possible_values" : [
-         ["Los_Angeles", "Los_Angeles"]
-       ]
-    }
-
+      }
     ]
   },
   {

@@ -144,6 +144,9 @@ void OESystemComponent::mainSettingsChanged()
 
   if (tzChanged)
   {
+    emit SettingsComponent::Get().groupUpdate(SETTINGS_SECTION_MAIN,
+         SettingsComponent::Get().getSection(SETTINGS_SECTION_MAIN)->descriptions());
+
     setTimeZone(QString("%1/%2").arg(m_currentTzMain).arg(m_currentTzRegion));
   }
 
