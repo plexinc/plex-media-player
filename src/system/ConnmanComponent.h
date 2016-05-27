@@ -28,6 +28,7 @@ public:
   Q_INVOKABLE bool isWifiEnabled() { return isTechnologyEnabled(CONNMAN_TECH_WIFI); }
   Q_INVOKABLE bool connectWifi(QString network) { return connectService(CONNMAN_TECH_WIFI, network); }
   Q_INVOKABLE void disconnectWifi(QString network) { disconnectService(CONNMAN_TECH_WIFI, network); }
+  Q_INVOKABLE QString getConnectedWifiNetwork();
   Q_INVOKABLE void provideWifiPassword(QString network, QString password) { provideServicePassword(CONNMAN_TECH_WIFI, network, password); }
   Q_INVOKABLE void scanWifi() { scan(CONNMAN_TECH_WIFI); }
 

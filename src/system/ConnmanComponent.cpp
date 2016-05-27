@@ -344,6 +344,22 @@ void ConnmanComponent::technologyConnectedChanged(const bool &connected)
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////
+QString ConnmanComponent::getConnectedWifiNetwork()
+{
+  foreach(NetworkTechnology *tech,m_networkManager->getTechnologies())
+  {
+    if (tech->name() == CONNMAN_TECH_WIFI)
+    {
+      foreach(NetworkService *service, m_services)
+      {
+        if (service->connected())
+          return service->name();
+      }
+    }
+  }
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////
 void ConnmanComponent::technologyScanFinished()
 {
   NetworkTechnology *tech = dynamic_cast<NetworkTechnology*>(sender());
