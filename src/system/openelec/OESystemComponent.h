@@ -2,6 +2,7 @@
 #define OESYSTEMCOMPONENT_H
 
 #include <QObject>
+#include <QDateTime>
 
 #include "ComponentManager.h"
 
@@ -26,6 +27,8 @@ public:
   virtual bool componentExport() { return true; }
   virtual const char* componentName() { return "oesystem"; }
   virtual bool componentInitialize();
+
+  Q_INVOKABLE qint64 getTime() { return QDateTime::currentDateTime().toMSecsSinceEpoch(); }
 
   bool setHostName(QString name);
 
