@@ -3,7 +3,6 @@ import Konvergo 1.0
 import QtWebEngine 1.1
 import QtWebChannel 1.0
 import QtQuick.Window 2.2
-import QtQuick.Controls 1.0
 
 KonvergoWindow
 {
@@ -12,24 +11,6 @@ KonvergoWindow
   objectName: "mainWindow"
   minimumHeight: windowMinSize.height
   minimumWidth: windowMinSize.width
-
-  menuBar: MenuBar
-  {
-    Menu
-    {
-      title: "Video"
-      MenuItem
-      {
-        text: "Always on top"
-        shortcut: "Ctrl+Meta+A"
-        checkable: true
-        onTriggered:
-        {
-          mainWindow.alwaysOnTop = !mainWindow.alwaysOnTop
-        }
-      }
-    }
-  }
 
   function getInitialScaleArg()
   {
@@ -204,5 +185,4 @@ KonvergoWindow
   }
 
   property QtObject webChannel: web.webChannel
-  property MenuBar menuBar
 }

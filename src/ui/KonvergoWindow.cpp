@@ -35,6 +35,7 @@ KonvergoWindow::KonvergoWindow(QWindow* parent) : QQuickWindow(parent), m_debugL
   InputComponent::Get().registerHostCommand("toggleDebug", this, "toggleDebug");
   InputComponent::Get().registerHostCommand("reload", this, "reloadWeb");
   InputComponent::Get().registerHostCommand("fullscreen", this, "toggleFullscreen");
+  InputComponent::Get().registerHostCommand("alwaysOnTop", this, "toggleAlwaysOnTop");
 
 #ifdef TARGET_RPI
   // On RPI, we use dispmanx layering - the video is on a layer below Konvergo,
@@ -73,6 +74,9 @@ KonvergoWindow::KonvergoWindow(QWindow* parent) : QQuickWindow(parent), m_debugL
 #else
   updateFullscreenState(false);
 #endif
+
+  // Check the always on top setting and activate it if necessary.
+  updateAlwaysOnTopState();
 
   emit enableVideoWindowSignal();
 }
@@ -216,16 +220,8 @@ void KonvergoWindow::setAlwaysOnTop(bool enable)
 {
   QLOG_DEBUG() << "setting always on top = " << enable;
 
-  Qt::WindowFlags flags = this->flags();
-  Qt::WindowFlags triggerFlags = Qt::WindowStaysOnTopHint;
-#ifdef Q_OS_LINUX
-  triggerFlags = triggerFlags | Qt::X11BypassWindowManagerHint;
-#endif
-
-  flags = enable ? (flags | triggerFlags) : (flags ^ triggerFlags);
-
-  this->setFlags(flags);
-  this->show();
+  // Update the settings value.
+  SettingsComponent::Get().setValue(SETTINGS_SECTION_MAIN, "alwaysOnTop", enable);
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
@@ -244,6 +240,11 @@ void KonvergoWindow::updateMainSectionSettings(const QVariantMap& values)
   if (values.find("disablemouse") != values.end())
   {
     SystemComponent::Get().setCursorVisibility(!SettingsComponent::Get().value(SETTINGS_SECTION_MAIN, "disablemouse").toBool());
+  }
+
+  if (values.find("alwaysOnTop") != values.end())
+  {
+    updateAlwaysOnTopState();
   }
 
   if (values.find("fullscreen") == values.end())
@@ -269,6 +270,27 @@ void KonvergoWindow::updateFullscreenState(bool saveGeo)
     setVisibility(QWindow::Windowed);
     loadGeometry();
   }
+}
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
+void KonvergoWindow::updateAlwaysOnTopState()
+{
+  QLOG_DEBUG() << "Changing always-on-top state";
+  Qt::WindowFlags forceOnTopFlags = Qt::WindowStaysOnTopHint;
+#ifdef Q_OS_LINUX
+  forceOnTopFlags = forceOnTopFlags | Qt::X11BypassWindowManagerHint;
+#endif
+
+  if(SettingsComponent::Get().value(SETTINGS_SECTION_MAIN, "alwaysOnTop").toBool())
+  {
+    setFlags(flags() | forceOnTopFlags);
+  }
+  else
+  {
+    setFlags(flags() & ~forceOnTopFlags);
+  }
+
+  show();
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////

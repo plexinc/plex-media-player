@@ -50,7 +50,11 @@ public:
 
   bool isAlwaysOnTop()
   {
-	  return ((flags() & Qt::WindowStaysOnTopHint));
+    Qt::WindowFlags forceOnTopFlags = Qt::WindowStaysOnTopHint;
+#ifdef Q_OS_LINUX
+    forceOnTopFlags = forceOnTopFlags | Qt::X11BypassWindowManagerHint;
+#endif
+    return (flags() & forceOnTopFlags);
   }
 
   void setAlwaysOnTop(bool enable);
@@ -66,6 +70,11 @@ public:
   Q_SLOT void toggleFullscreen()
   {
     setFullScreen(!isFullScreen());
+  }
+
+  Q_SLOT void toggleAlwaysOnTop()
+  {
+    setAlwaysOnTop(!isAlwaysOnTop());
   }
 
   Q_SLOT void reloadWeb()
@@ -99,6 +108,7 @@ private slots:
   void onVisibilityChanged(QWindow::Visibility visibility);
   void updateMainSectionSettings(const QVariantMap& values);
   void updateFullscreenState(bool saveGeo = true);
+  void updateAlwaysOnTopState();
   void onScreenCountChanged(int newCount);
   void updateDebugInfo();
   void playerWindowVisible(bool visible);
