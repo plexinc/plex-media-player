@@ -9,6 +9,7 @@
 #undef CursorShape
 #undef Bool
 #undef Status
+#undef Unsorted
 
 #include "display/DisplayManager.h"
 
