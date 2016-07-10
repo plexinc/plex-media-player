@@ -15,6 +15,8 @@
 #include "x11/DisplayManagerX11.h"
 #elif defined(Q_OS_WIN)
 #include "win/DisplayManagerWin.h"
+#elif defined(TARGET_AML)
+#include "aml/DisplayManagerAML.h"
 #endif
 
 #include "dummy/DisplayManagerDummy.h"
@@ -61,6 +63,8 @@ bool DisplayComponent::componentInitialize()
   m_displayManager = new DisplayManagerX11(this);
 #elif defined(Q_OS_WIN)
   m_displayManager = new DisplayManagerWin(this);
+#elif defined(TARGET_AML)
+  m_displayManager = new DisplayManagerAML(this);
 #endif
 
   if (initializeDisplayManager())

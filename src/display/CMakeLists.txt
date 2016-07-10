@@ -6,6 +6,8 @@ elseif(X11XRANDR_FOUND)
   add_subdirectory(x11)
 elseif(WIN32)
   add_subdirectory(win)
+elseif(AML_FOUND)
+  add_subdirectory(aml)
 endif()
 
 add_subdirectory(dummy)
