@@ -25,7 +25,7 @@ QMap<SystemComponent::PlatformType, QString> g_platformTypeNames = { \
   { SystemComponent::platformTypeOsx, "macosx" }, \
   { SystemComponent::platformTypeWindows, "windows" },
   { SystemComponent::platformTypeLinux, "linux" },
-  { SystemComponent::platformTypeOpenELEC, "openelec" },
+  { SystemComponent::platformTypeEmbedded, "embedded" },
   { SystemComponent::platformTypeUnknown, "unknown" },
 };
 
@@ -53,7 +53,7 @@ SystemComponent::SystemComponent(QObject* parent) : ComponentBase(parent), m_pla
 #elif defined(Q_OS_WIN)
   m_platformType = platformTypeWindows;
 #elif defined(KONVERGO_OPENELEC)
-  m_platformType = platformTypeOpenELEC;
+  m_platformType = platformTypeEmbedded;
 #elif defined(Q_OS_LINUX)
   m_platformType = platformTypeLinux;
 #endif

@@ -17,7 +17,7 @@
 #include "server/HTTPServer.h"
 
 #if KONVERGO_OPENELEC
-#include "system/openelec/OESystemComponent.h"
+#include "system/embedded/EmbeddedSystemComponent.h"
 #endif
 
 #include "QsLog.h"
@@ -71,7 +71,7 @@ void ComponentManager::initialize()
   registerComponent(&PowerComponent::Get());
 
 #if KONVERGO_OPENELEC
-  registerComponent(&OESystemComponent::Get());
+  registerComponent(&EmbeddedSystemComponent::Get());
 #endif
 
   for(ComponentBase* component : m_components.values())

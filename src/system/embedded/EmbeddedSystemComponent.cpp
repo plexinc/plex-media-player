@@ -1,25 +1,25 @@
 #include "settings/SettingsComponent.h"
-#include "OESystemComponent.h"
+#include "EmbeddedSystemComponent.h"
 #include "QsLog.h"
 #include <unistd.h>
 #include <QFile>
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
-OESystemComponent::OESystemComponent(QObject *parent) : ComponentBase(parent)
+EmbeddedSystemComponent::EmbeddedSystemComponent(QObject *parent) : ComponentBase(parent)
 {
 
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
-bool OESystemComponent::componentInitialize()
+bool EmbeddedSystemComponent::componentInitialize()
 {
-  setHostName(SettingsComponent::Get().value(SETTINGS_SECTION_OPENELEC, "systemname").toString());
+  setHostName(SettingsComponent::Get().value(SETTINGS_SECTION_EMBEDDED, "systemname").toString());
 
   return true;
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
-bool OESystemComponent::setHostName(QString name)
+bool EmbeddedSystemComponent::setHostName(QString name)
 {
   // first we change the hostname name for this session
   char* hostname = name.toUtf8().data();

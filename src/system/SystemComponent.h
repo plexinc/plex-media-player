@@ -52,7 +52,7 @@ public:
     platformTypeOsx,
     platformTypeWindows,
     platformTypeLinux,
-    platformTypeOpenELEC
+    platformTypeEmbedded
   };
 
   // possible values for target types
@@ -70,7 +70,7 @@ public:
   QString getPlatformTypeString() const;
   QString getPlatformArchString() const;
 
-  inline bool isOpenELEC() const { return m_platformType == platformTypeOpenELEC; }
+  inline bool isEmbedded() const { return m_platformType == platformTypeEmbedded; }
   bool isWebClientConnected() const { return !m_webClientVersion.isEmpty(); }
 
   inline QString authenticationToken() { return m_authenticationToken; }

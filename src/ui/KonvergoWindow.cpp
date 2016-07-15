@@ -236,7 +236,7 @@ void KonvergoWindow::updateMainSectionSettings(const QVariantMap& values)
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 void KonvergoWindow::updateFullscreenState(bool saveGeo)
 {
-  if (SettingsComponent::Get().value(SETTINGS_SECTION_MAIN, "fullscreen").toBool() || SystemComponent::Get().isOpenELEC())
+  if (SettingsComponent::Get().value(SETTINGS_SECTION_MAIN, "fullscreen").toBool() || SystemComponent::Get().isEmbedded())
   {
     // if we were go from windowed to fullscreen
     // we want to store our current windowed position
