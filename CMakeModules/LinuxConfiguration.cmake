@@ -15,3 +15,11 @@ endif()
 
 set(INSTALL_BIN_DIR bin)
 set(INSTALL_RESOURCE_DIR share/plexmediaplayer)
+
+if(OPENELEC)
+  find_package(Connman-qt5 REQUIRED)
+  if(CONNMAN-QT5_FOUND)
+    set(OE_LIBRARIES ${OE_LIBRARIES} ${CONNMAN-QT5_LIBRARY})
+    include_directories(${CONNMAN-QT5_INCLUDE_DIR})
+  endif()
+endif()

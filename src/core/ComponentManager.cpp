@@ -18,6 +18,7 @@
 
 #if KONVERGO_OPENELEC
 #include "system/openelec/OESystemComponent.h"
+#include "system/ConnmanComponent.h"
 #endif
 
 #include "QsLog.h"
@@ -72,6 +73,7 @@ void ComponentManager::initialize()
 
 #if KONVERGO_OPENELEC
   registerComponent(&OESystemComponent::Get());
+  registerComponent(&ConnmanComponent::Get());
 #endif
 
   for(ComponentBase* component : m_components.values())
