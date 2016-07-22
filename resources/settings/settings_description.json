@@ -135,7 +135,7 @@
         "value": "preventSystemScreensaver",
         "default": false,
         "hidden": true
-      }
+      },
       {
         // Warning: we should make this hidden or remove it later on
         "value": "useSystemAudioCodecs2",
