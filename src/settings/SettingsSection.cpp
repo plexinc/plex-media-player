@@ -182,3 +182,11 @@ bool SettingsSection::isHidden() const
   bool correctPlatform = ((m_platform & Utils::CurrentPlatform()) == Utils::CurrentPlatform());
   return (m_hidden || !correctPlatform);
 }
+
+/////////////////////////////////////////////////////////////////////////////////////////
+QVariant SettingsSection::defaultValue(const QString& key)
+{
+  if (m_values.contains(key))
+    return m_values.value(key)->defaultValue();
+  return QVariant();
+}

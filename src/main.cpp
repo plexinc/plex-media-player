@@ -88,8 +88,9 @@ int main(int argc, char *argv[])
     parser.setApplicationDescription("Plex Media Player");
     parser.addHelpOption();
     parser.addVersionOption();
-    parser.addOptions({{{"l", "licenses"}, "Show license information"}});
-    parser.addOptions({{{"a", "from-auto-update"}, "When invoked from auto-update"}});
+    parser.addOptions({{{"l", "licenses"}, "Show license information"},
+                       {{"a", "from-auto-update"}, "When invoked from auto-update"},
+                       {{"m", "minimize"}, "Start PMP minimized"}});
 
     char **newArgv = appendCommandLineArguments(argc, argv, g_qtFlags);
     argc += g_qtFlags.size();

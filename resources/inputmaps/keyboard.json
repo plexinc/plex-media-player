@@ -48,6 +48,7 @@
     "Ctrl\\+F": "search",
 
     // application shortcuts
+    "Ctrl\\+M": "host:minimize",
     "Ctrl\\+Shift\\+F": "host:fullscreen",
     "Ctrl\\+Q": "host:close",
     "Ctrl\\+Shift\\+R": "host:reload",

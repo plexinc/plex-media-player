@@ -3,6 +3,7 @@
 
 #include <QQuickWindow>
 #include <QEvent>
+#include <settings/SettingsComponent.h>
 
 
 // This controls how big the web view will zoom using semantic zoom
@@ -82,6 +83,21 @@ public:
     emit reloadWebClient();
   }
 
+  Q_SLOT void toggleMinimize()
+  {
+    if (windowState() != Qt::WindowMinimized)
+    {
+      setWindowState(Qt::WindowMinimized);
+    }
+    else
+    {
+      if (SettingsComponent::Get().value(SETTINGS_SECTION_MAIN, "fullscreen").toBool())
+        setWindowState(Qt::WindowFullScreen);
+      else
+        setWindowState(Qt::WindowActive);
+    }
+  }
+
   qreal windowScale() { return CalculateScale(size()); }
   qreal webScale() { return CalculateWebScale(size(), devicePixelRatio()); }
   qreal webHeightMax() { return WEBUI_MAX_HEIGHT; }
@@ -109,7 +125,6 @@ private slots:
   void updateMainSectionSettings(const QVariantMap& values);
   void updateFullscreenState(bool saveGeo = true);
   void updateAlwaysOnTopState();
-  void onScreenCountChanged(int newCount);
   void updateDebugInfo();
   void playerWindowVisible(bool visible);
 

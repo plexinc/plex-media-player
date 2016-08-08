@@ -35,6 +35,7 @@ KonvergoWindow::KonvergoWindow(QWindow* parent) : QQuickWindow(parent), m_debugL
   InputComponent::Get().registerHostCommand("toggleDebug", this, "toggleDebug");
   InputComponent::Get().registerHostCommand("reload", this, "reloadWeb");
   InputComponent::Get().registerHostCommand("fullscreen", this, "toggleFullscreen");
+  InputComponent::Get().registerHostCommand("minimize", this, "toggleMinimize");
 
 #ifdef TARGET_RPI
   // On RPI, we use dispmanx layering - the video is on a layer below Konvergo,
@@ -49,6 +50,9 @@ KonvergoWindow::KonvergoWindow(QWindow* parent) : QQuickWindow(parent), m_debugL
   notifyScale(loadedGeo.size());
 
   connect(SettingsComponent::Get().getSection(SETTINGS_SECTION_MAIN), &SettingsSection::valuesUpdated,
+          this, &KonvergoWindow::updateMainSectionSettings);
+
+  connect(SettingsComponent::Get().getSection(SETTINGS_SECTION_STATE), &SettingsSection::valuesUpdated,
           this, &KonvergoWindow::updateMainSectionSettings);
 
   connect(this, &KonvergoWindow::visibilityChanged,
@@ -235,9 +239,7 @@ void KonvergoWindow::updateMainSectionSettings(const QVariantMap& values)
 {
   // update mouse visibility if needed
   if (values.find("disablemouse") != values.end())
-  {
     SystemComponent::Get().setCursorVisibility(!SettingsComponent::Get().value(SETTINGS_SECTION_MAIN, "disablemouse").toBool());
-  }
 
   if (values.find("alwaysOnTop") != values.end())
     updateAlwaysOnTopState();
@@ -318,12 +320,6 @@ void KonvergoWindow::focusOutEvent(QFocusEvent * ev)
 void KonvergoWindow::RegisterClass()
 {
   qmlRegisterType<KonvergoWindow>("Konvergo", 1, 0, "KonvergoWindow");
-}
-
-/////////////////////////////////////////////////////////////////////////////////////////
-void KonvergoWindow::onScreenCountChanged(int newCount)
-{
-  updateFullscreenState(false);
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////
