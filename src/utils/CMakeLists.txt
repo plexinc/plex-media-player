@@ -5,7 +5,6 @@ add_sources(
   HelperLauncher.h HelperLauncher.cpp
   Utils.cpp Utils.h
   Log.cpp Log.h
-  StartupItemUtils.cpp StartupItemUtils.h
 )
 
 if(APPLE)
