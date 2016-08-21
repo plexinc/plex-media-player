@@ -77,7 +77,11 @@ void ShowLicenseInfo()
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////
-QStringList g_qtFlags = {"--enable-viewport", "--enable-viewport-meta", "--disable-gpu", "--disable-web-security"};
+#ifdef TARGET_AML
+  QStringList g_qtFlags = {"--enable-viewport", "--enable-viewport-meta", "--disable-web-security", "--no-sandbox"};
+#else
+  QStringList g_qtFlags = {"--enable-viewport", "--enable-viewport-meta", "--disable-web-security", "--no-sandbox", "--disable-gpu",};
+#endif
 
 /////////////////////////////////////////////////////////////////////////////////////////
 int main(int argc, char *argv[])
