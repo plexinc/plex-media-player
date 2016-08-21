@@ -36,7 +36,7 @@ KonvergoWindow::KonvergoWindow(QWindow* parent) : QQuickWindow(parent), m_debugL
   InputComponent::Get().registerHostCommand("reload", this, "reloadWeb");
   InputComponent::Get().registerHostCommand("fullscreen", this, "toggleFullscreen");
 
-#ifdef TARGET_RPI
+#if (defined(TARGET_RPI) || defined(TARGET_AML))
   // On RPI, we use dispmanx layering - the video is on a layer below Konvergo,
   // and during playback the Konvergo window is partially transparent. The OSD
   // will be visible on top of the video as part of the Konvergo window.
