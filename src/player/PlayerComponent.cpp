@@ -204,13 +204,26 @@ void PlayerComponent::setRpiWindow(QQuickWindow* window)
 
   mpv_set_option_string(m_mpv, "vo", "rpi");
 }
+///////////////////////////////////////////////////////////////////////////////////////////////////
+void PlayerComponent::setAmlWindow(QQuickWindow* window)
+{
+  window->setFlags(Qt::FramelessWindowHint);
+
+  mpv_set_option_string(m_mpv, "vo", "aml");
+}
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 void PlayerComponent::setWindow(QQuickWindow* window)
 {
   bool useRpi = false;
+  bool useAml = false;
+
 #ifdef TARGET_RPI
   useRpi = true;
+#endif
+
+#ifdef TARGET_AML
+  useAml = true;
 #endif
 
   m_window = window;
@@ -222,6 +235,8 @@ void PlayerComponent::setWindow(QQuickWindow* window)
     mpv::qt::set_option_variant(m_mpv, "vo", forceVo);
   else if (useRpi)
     setRpiWindow(window);
+  else if (useAml)
+    setAmlWindow(window);
   else
     setQtQuickWindow(window);
 }

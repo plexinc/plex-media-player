@@ -172,6 +172,7 @@ private:
   //
   void loadWithOptions(const QVariantMap& options);
   void setRpiWindow(QQuickWindow* window);
+  void setAmlWindow(QQuickWindow* window);
   void setQtQuickWindow(QQuickWindow* window);
   void updatePlaybackState();
   void handleMpvEvent(mpv_event *event);
