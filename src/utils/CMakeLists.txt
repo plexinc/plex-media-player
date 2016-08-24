@@ -15,3 +15,7 @@ endif(APPLE)
 if(WIN32)
   add_subdirectory(win)
 endif()
+
+if (AML_FOUND)
+  add_subdirectory(aml)
+endif(AML_FOUND)
