@@ -53,6 +53,10 @@ PlayerComponent::PlayerComponent(QObject* parent)
 
   m_reloadAudioTimer.setSingleShot(true);
   connect(&m_reloadAudioTimer, &QTimer::timeout, this, &PlayerComponent::onReloadAudio);
+
+#ifdef TARGET_AML
+  m_amlAudio = new AMLAudio(this);
+#endif
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////
@@ -66,6 +70,10 @@ PlayerComponent::~PlayerComponent()
 {
   if (m_mpv)
     mpv_set_wakeup_callback(m_mpv, nullptr, nullptr);
+
+#ifdef TARGET_AML
+  delete m_amlAudio;
+#endif
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
@@ -134,6 +142,7 @@ bool PlayerComponent::componentInitialize()
   mpv_observe_property(m_mpv, 0, "vo-configured", MPV_FORMAT_FLAG);
   mpv_observe_property(m_mpv, 0, "duration", MPV_FORMAT_DOUBLE);
   mpv_observe_property(m_mpv, 0, "audio-device-list", MPV_FORMAT_NODE);
+  mpv_observe_property(m_mpv, 0, "audio-params/format", MPV_FORMAT_STRING);
 
   connect(this, &PlayerComponent::onMpvEvents, this, &PlayerComponent::handleMpvEvents, Qt::QueuedConnection);
 
@@ -515,6 +524,11 @@ void PlayerComponent::handleMpvEvent(mpv_event *event)
       else if (strcmp(prop->name, "audio-device-list") == 0)
       {
         updateAudioDeviceList();
+      }
+      else if (strcmp(prop->name, "audio-params/format") == 0)
+      {
+        if (prop->format == MPV_FORMAT_STRING)
+          notifyCodecChange();
       }
       break;
     }
@@ -1237,6 +1251,30 @@ void PlayerComponent::appendAudioFormat(QTextStream& info, const QString& proper
     if (hr != full)
       info << " (" << full << ")";
   }
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////
+void PlayerComponent::notifyCodecChange()
+{
+  QString audioFormat = MPV_PROPERTY("audio-params/format");
+  QString codec;
+  bool passthrough = audioFormat.startsWith("spdif-");
+
+  if (passthrough)
+    codec = audioFormat.mid(6); // spdif-*
+  else
+    codec = audioFormat.mid(5); // lavc:*
+
+
+  emit onCodecChanged(codec, passthrough);
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////
+void PlayerComponent::resetAudioOutput()
+{
+  QVariantList command;
+  command << "ao-reload";
+  mpv::qt::command_variant(m_mpv, command);
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////

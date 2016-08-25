@@ -17,6 +17,10 @@
 #include <mpv/client.h>
 #include <mpv/qthelper.hpp>
 
+#ifdef TARGET_AML
+#include "aml/AMLAudio.h"
+#endif
+
 void initD3DDevice(void);
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
@@ -132,6 +136,7 @@ public Q_SLOTS:
   void updateAudioDeviceList();
   void updateSubtitleSettings();
   void updateVideoSettings();
+  void resetAudioOutput();
 
 private Q_SLOTS:
   void handleMpvEvents();
@@ -160,6 +165,7 @@ Q_SIGNALS:
   void positionUpdate(quint64);
 
   void onMpvEvents();
+  void onCodecChanged(QString codec, bool passthrough);
   
 private:
   // this is the function actually implemented in the backends. the variantmap contains
@@ -189,6 +195,7 @@ private:
   // Call resume() when done.
   void startCodecsLoading(std::function<void()> resume);
   void updateVideoAspectSettings();
+  void notifyCodecChange();
 
   mpv::qt::Handle m_mpv;
 
@@ -211,6 +218,11 @@ private:
   bool m_doAc3Transcoding;
   QStringList m_passthroughCodecs;
   QVariantMap m_serverMediaInfo;
+
+#ifdef TARGET_AML
+  AMLAudio *m_amlAudio;
+#endif
+
 };
 
 #endif // PLAYERCOMPONENT_H
