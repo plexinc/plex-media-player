@@ -177,8 +177,9 @@ int main(int argc, char *argv[])
     QtWebEngine::initialize();
 
     // start our helper
+#if ENABLE_HELPER
     HelperLauncher::Get().connectToHelper();
-
+#endif
     // load QtWebChannel so that we can register our components with it.
     QQmlApplicationEngine *engine = Globals::Engine();
 
