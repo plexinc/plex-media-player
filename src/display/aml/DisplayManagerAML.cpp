@@ -3,8 +3,15 @@
 #include <QTextStream>
 #include <QRegularExpression>
 #include <QThread>
+#include "utils/aml/AMLUtils.h"
+
+#include <sys/ioctl.h>
+#include <fcntl.h>
+#include <unistd.h>
 
 #include "QsLog.h"
+
+#define FRAMEBUFFER_DEVICE    "/dev/fb0"
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 bool DisplayManagerAML::initialize()
@@ -92,8 +99,117 @@ bool DisplayManagerAML::initialize()
 
   file.close();
 
+  // setup scaling if needed. when framebuffer is limited to 1080p
+  // and that we run a 4k mode, this is necessary
+  if (!setupScaling())
+  {
+    QLOG_ERROR() << "Failed to setup scaling";
+  }
+
   return DisplayManager::initialize();
 }
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
+bool DisplayManagerAML::getFramebufferResolution(fb_var_screeninfo *vinfo)
+{
+  int fd = open(FRAMEBUFFER_DEVICE, O_RDWR);
+  int ret = false;
+
+  if (fd > 0)
+  {
+   if (ioctl(fd, FBIOGET_VSCREENINFO, vinfo) == 0)
+     ret = true;
+   else
+     QLOG_ERROR() << "Failed to get framebuffer resolution for " << FRAMEBUFFER_DEVICE;
+
+   close(fd);
+  }
+  else
+  {
+    QLOG_ERROR() << "Failed to open framebuffer device " << FRAMEBUFFER_DEVICE;
+  }
+
+  return ret;
+}
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
+bool DisplayManagerAML::setFramebufferResolution(fb_var_screeninfo *vinfo)
+{
+  int fd = open(FRAMEBUFFER_DEVICE, O_RDWR);
+  int ret = false;
+
+  if (fd > 0)
+  {
+   if (ioctl(fd, FBIOPUT_VSCREENINFO, vinfo) == 0)
+     ret = true;
+   else
+     QLOG_ERROR() << "Failed to set framebuffer resolution for " << FRAMEBUFFER_DEVICE;
+
+   close(fd);
+  }
+  else
+  {
+    QLOG_ERROR() << "Failed to open framebuffer device " << FRAMEBUFFER_DEVICE;
+  }
+
+  return ret;
+}
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
+bool DisplayManagerAML::setFramebufferResolution(QSize fbsize)
+{
+  fb_var_screeninfo vinfo;
+
+  if (getFramebufferResolution(&vinfo))
+  {
+    vinfo.xres = fbsize.width();
+    vinfo.yres = fbsize.height();
+    vinfo.xres_virtual = fbsize.width();
+    vinfo.yres_virtual = 2 * fbsize.height();
+    vinfo.bits_per_pixel = 32;
+    vinfo.activate = FB_ACTIVATE_ALL;
+
+    if (setFramebufferResolution(&vinfo))
+      return true;
+  }
+
+  return false;
+}
+
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
+bool DisplayManagerAML::setupScaling()
+{
+
+  fb_var_screeninfo vinfo;
+
+  if (!getFramebufferResolution(&vinfo))
+    return false;
+
+  DMVideoModePtr currentMode = getCurrentVideoMode(0);
+
+  if (currentMode)
+  {
+    QString framebufferAaxis = QString("0 0 %1 %2").arg(vinfo.xres - 1).arg(vinfo.yres - 1);
+    QString screenAxis = QString("0 0 %1 %2").arg(currentMode->m_width - 1).arg(currentMode->m_height - 1);
+
+    AMLUtils::sysfsWriteString("/sys/class/graphics/fb0/free_scale", "0");
+    AMLUtils::sysfsWriteString("/sys/class/graphics/fb0/free_scale_axis", framebufferAaxis);
+    AMLUtils::sysfsWriteString("/sys/class/graphics/fb0/window_axis", screenAxis);
+    AMLUtils::sysfsWriteString("/sys/class/graphics/fb0/scale_width", QString::number(currentMode->m_width));
+    AMLUtils::sysfsWriteString("/sys/class/graphics/fb0/scale_height", QString::number(currentMode->m_height));
+    AMLUtils::sysfsWriteString("/sys/class/graphics/fb0/free_scale", "0x10001");
+
+    QLOG_DEBUG() << QString("Setting up scaling %1x%2 -> %3x%4").arg(vinfo.xres) \
+                                                                .arg(vinfo.yres) \
+                                                                .arg(currentMode->m_width) \
+                                                                .arg(currentMode->m_height);
+    return true;
+  }
+
+  return false;
+}
+
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 bool DisplayManagerAML::setDisplayMode(int display, int mode)
@@ -110,6 +226,9 @@ bool DisplayManagerAML::setDisplayMode(int display, int mode)
   out << modeStrings[mode];
 
   file.close();
+
+  // adjust scaling if needed
+  setupScaling();
 
   return true;
 }
