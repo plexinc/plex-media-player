@@ -31,6 +31,10 @@
 #include "SignalManager.h"
 #endif
 
+#ifdef TARGET_AML
+#include "display/aml/DisplayManagerAML.h"
+#endif
+
 /////////////////////////////////////////////////////////////////////////////////////////
 static void preinitQt()
 {
@@ -51,6 +55,16 @@ static void preinitQt()
   else
     QCoreApplication::setAttribute(Qt::AA_UseOpenGLES);
 #endif
+
+#ifdef TARGET_AML
+  // on AML we need to have framebuffer set to a fixed resolution
+  // to enable proper upscaling when needed (espacially for 4k).
+  DisplayManagerAML *manager = new DisplayManagerAML(nullptr);
+  manager->initialize();
+  manager->setFramebufferResolution(QSize(AML_FRAMBUFFER_WIDTH, AML_FRAMBUFFER_HEIGHT));
+  delete manager;
+#endif
+
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////
