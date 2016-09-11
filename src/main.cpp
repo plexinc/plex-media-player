@@ -31,6 +31,10 @@
 #include "SignalManager.h"
 #endif
 
+#ifdef TARGET_AML
+#include "display/aml/DisplayManagerAML.h"
+#endif
+
 /////////////////////////////////////////////////////////////////////////////////////////
 static void preinitQt()
 {
@@ -51,6 +55,16 @@ static void preinitQt()
   else
     QCoreApplication::setAttribute(Qt::AA_UseOpenGLES);
 #endif
+
+#ifdef TARGET_AML
+  // on AML we need to have framebuffer set to a fixed resolution
+  // to enable proper upscaling when needed (espacially for 4k).
+  DisplayManagerAML *manager = new DisplayManagerAML(nullptr);
+  manager->initialize();
+  manager->setFramebufferResolution(QSize(AML_FRAMBUFFER_WIDTH, AML_FRAMBUFFER_HEIGHT));
+  delete manager;
+#endif
+
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////
@@ -77,7 +91,11 @@ void ShowLicenseInfo()
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////
-QStringList g_qtFlags = {"--enable-viewport", "--enable-viewport-meta", "--disable-gpu", "--disable-web-security"};
+#ifdef TARGET_AML
+  QStringList g_qtFlags = {"--enable-viewport", "--enable-viewport-meta", "--disable-web-security", "--no-sandbox"};
+#else
+  QStringList g_qtFlags = {"--enable-viewport", "--enable-viewport-meta", "--disable-web-security", "--no-sandbox", "--disable-gpu",};
+#endif
 
 /////////////////////////////////////////////////////////////////////////////////////////
 int main(int argc, char *argv[])
@@ -173,8 +191,9 @@ int main(int argc, char *argv[])
     QtWebEngine::initialize();
 
     // start our helper
+#if ENABLE_HELPER
     HelperLauncher::Get().connectToHelper();
-
+#endif
     // load QtWebChannel so that we can register our components with it.
     QQmlApplicationEngine *engine = Globals::Engine();
 
