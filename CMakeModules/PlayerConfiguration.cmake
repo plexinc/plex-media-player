@@ -14,6 +14,13 @@ endif(NOT OPENGL_FOUND)
 find_package(MPV REQUIRED)
 include_directories(${MPV_INCLUDE_DIR})
 
+find_package(AML)
+if (AML_FOUND)
+  include_directories(${AML_INCLUDE_DIR})
+  set(EXTRA_LIBS ${EXTRA_LIBS} ${AML_LIBRARY})
+  add_definitions(-DTARGET_AML)
+endif (AML_FOUND)
+
 find_path(MPV_QT_HELPER mpv/qthelper.hpp HINTS ${MPV_INCLUDE_DIR})
 if(${MPV_QT_HELPER} STREQUAL "MPV_QT_HELPER-NOTFOUND")
   message(FATAL_ERROR "Missing mpv/qthelper.h - maybe your mpv version is to old?")
