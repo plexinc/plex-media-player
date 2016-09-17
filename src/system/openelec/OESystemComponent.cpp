@@ -111,14 +111,11 @@ void OESystemComponent::mainSettingsChanged()
     tzChanged = true;
     m_currentTzMain = settingTzMain;
 
-    // update the list of region according to main zone
-    SettingsComponent::Get().updatePossibleValues(SETTINGS_SECTION_MAIN, SETTINGS_KEY_TZREGION,  m_timezones[m_currentTzMain]);
-
     // check if current region is in that list
     bool isRegionValid = false;
     foreach(QVariant entry, m_timezones[m_currentTzMain])
     {
-      if (entry.toMap()["value"] == settingTzRegion)
+      if (entry.toMap()["value"].toString() == settingTzRegion)
       {
         isRegionValid = true;
         m_currentTzRegion = settingTzRegion;
@@ -131,7 +128,6 @@ void OESystemComponent::mainSettingsChanged()
     {
       QVariantMap entry = m_timezones[m_currentTzMain].at(0).toMap();
       m_currentTzRegion = entry["value"].toString();
-      SettingsComponent::Get().setValue(SETTINGS_SECTION_MAIN, SETTINGS_KEY_TZREGION, m_currentTzRegion);
       settingTzRegion = m_currentTzRegion;
     }
   }
@@ -143,7 +139,14 @@ void OESystemComponent::mainSettingsChanged()
   }
 
   if (tzChanged)
+  {
+    SettingsComponent::Get().setValue(SETTINGS_SECTION_MAIN, SETTINGS_KEY_TZREGION, m_currentTzRegion);
+
+     // update the list of region according to main zone
+    SettingsComponent::Get().updatePossibleValues(SETTINGS_SECTION_MAIN, SETTINGS_KEY_TZREGION,  m_timezones[m_currentTzMain]);
+
     setTimeZone(QString("%1/%2").arg(m_currentTzMain).arg(m_currentTzRegion));
+  }
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////

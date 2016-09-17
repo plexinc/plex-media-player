@@ -63,6 +63,7 @@ public:
   void load();
 
   Q_SIGNAL void groupUpdate(const QString& section, const QVariant& description);
+  Q_SIGNAL void setSettingsValue(const QString& section, const QVariant& key);
 
   void setUserRoleList(const QStringList& userRoles);
 
