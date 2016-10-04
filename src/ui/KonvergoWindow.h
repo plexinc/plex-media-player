@@ -124,7 +124,6 @@ private:
   qreal m_lastScale;
   QTimer* m_infoTimer;
   QString m_debugInfo, m_systemDebugInfo, m_videoInfo;
-  int m_ignoreFullscreenSettingsChange;
 };
 
 #endif // KONVERGOWINDOW_H
