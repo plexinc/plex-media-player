@@ -208,6 +208,7 @@ void PlayerComponent::setWindow(QQuickWindow* window)
 
 #ifdef TARGET_RPI
   window->setFlags(Qt::FramelessWindowHint);
+  mpv::qt::set_option_variant(m_mpv, "vo", "rpi");
 #endif
 
   QString forceVo = SettingsComponent::Get().value(SETTINGS_SECTION_VIDEO, "debug.force_vo").toString();
