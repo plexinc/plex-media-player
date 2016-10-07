@@ -123,6 +123,11 @@ bool PlayerComponent::componentInitialize()
   mpv::qt::set_property(m_mpv, "hr-seek", "no");
 #endif
 
+#ifdef TARGET_AML
+  // AML needs its own hardware decoder
+  mpv::qt::set_option_variant(m_mpv, "hwdec", "aml");
+#endif
+
   if (mpv_initialize(m_mpv) < 0)
     throw FatalException(tr("Failed to initialize mpv."));
 
