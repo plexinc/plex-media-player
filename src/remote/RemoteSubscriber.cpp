@@ -26,10 +26,7 @@ RemoteSubscriber::RemoteSubscriber(const QString& clientIdentifier, const QStrin
     m_netAccess = remote->getNetworkAccessManager();
 
     // make first access faster by connecting directly to the host now.
-    if (address.scheme() == "https")
-      m_netAccess->connectToHostEncrypted(address.host(), address.port());
-    else
-      m_netAccess->connectToHost(address.host(), address.port());
+    m_netAccess->connectToHost(address.host(), address.port());
   }
 }
 
