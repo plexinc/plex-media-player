@@ -50,6 +50,11 @@
     "Meta\\+Down": "host:minimize",
     "Ctrl\\+W": "host:quit",
 
+    // NLE-like
+    "J": "seek_backward",
+    "K": "play_pause",
+    ";": "seek_forward",
+
     // application shortcuts
     "Ctrl\\+Shift\\+F": "host:toggleWebMode",
     "Meta\\+Ctrl\\+F": "host:fullscreen",
