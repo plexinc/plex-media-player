@@ -29,6 +29,14 @@ void OEUpdateManager::doUpdate(const QString& version)
   {
     // copy the update files to /storage/.update
     QString destUpdatePath = "/storage/.update/" + updateFiles.at(0);
+    for (size_t n = 1; n < updateFiles.size(); n++)
+    {
+      QString fullPath = packagePath + updateFiles.at(n);
+      if (!QFile::remove(fullPath))
+      {
+        QLOG_DEBUG() << "Failed to remove old update at " << fullPath;
+      }
+    }
     if (packageDir.rename(packagePath + updateFiles.at(0), destUpdatePath))
     {
       if (isMiniUpdateArchive(destUpdatePath))
