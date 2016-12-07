@@ -141,6 +141,7 @@ private slots:
   void updateDebugInfo();
   void playerWindowVisible(bool visible);
   void showUpdateDialog();
+  void startVideoPlayback();
 
 private:
   void notifyScale(const QSize& size);

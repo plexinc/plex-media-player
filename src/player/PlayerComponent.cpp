@@ -249,7 +249,13 @@ void PlayerComponent::queueMedia(const QString& url, const QVariantMap& options,
   m_currentAudioStream = audioStream;
 
   if (metadata["type"] == "music")
+  {
     extraArgs.insert("vid", "no");
+  }
+  else
+  {
+    emit loadingVideo();
+  }
 
   extraArgs.insert("pause", options["autoplay"].toBool() ? "no" : "yes");
 

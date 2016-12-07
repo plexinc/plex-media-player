@@ -71,6 +71,9 @@ KonvergoWindow::KonvergoWindow(QWindow* parent) :
   connect(&PlayerComponent::Get(), &PlayerComponent::windowVisible,
           this, &KonvergoWindow::playerWindowVisible);
 
+  connect(&PlayerComponent::Get(), &PlayerComponent::loadingVideo,
+          this, &KonvergoWindow::startVideoPlayback);
+
   // this is using old syntax because ... reasons. QQuickCloseEvent is not public class
   connect(this, SIGNAL(closing(QQuickCloseEvent*)), this, SLOT(closingWindow()));
 
@@ -264,6 +267,13 @@ void KonvergoWindow::enableVideoWindow()
 {
   PlayerComponent::Get().setWindow(this);
   DisplayComponent::Get().setApplicationWindow(this);
+}
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
+void KonvergoWindow::startVideoPlayback()
+{
+  if (SettingsComponent::Get().value(SETTINGS_SECTION_MAIN, "focusOnVideoLoading").toBool())
+    otherAppFocus();
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////

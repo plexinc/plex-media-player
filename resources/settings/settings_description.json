@@ -45,6 +45,11 @@
         "hidden": true
       },
       {
+        "value": "focusOnVideoLoading",
+        "default": true,
+        "hidden": true
+      },
+      {
         "value": "alwaysOnTop",
         "default": false
       },
