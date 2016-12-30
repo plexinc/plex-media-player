@@ -289,3 +289,10 @@ void InputComponent::cancelAutoRepeat()
   m_autoRepeatTimer->stop();
   m_autoRepeatActions.clear();
 }
+
+/////////////////////////////////////////////////////////////////////////////////////////
+void InputComponent::focusIn()
+{
+  for (auto input : m_inputs)
+    input->focusIn();
+}

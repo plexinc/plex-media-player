@@ -7,6 +7,7 @@
 //
 
 #include <QKeyEvent>
+#include <QGuiApplication>
 #include "InputSDL.h"
 #include "QsLog.h"
 
@@ -48,6 +49,8 @@ void InputSDLWorker::close()
     SDL_Event event;
     event.type = SDL_QUIT;
     SDL_PushEvent(&event);
+
+    wake();
   }
 }
 
@@ -74,6 +77,12 @@ void InputSDLWorker::run()
 
     while (SDL_PollEvent(&event))
     {
+      if (event.type != SDL_JOYDEVICEADDED &&
+          event.type != SDL_JOYDEVICEREMOVED &&
+          event.type != SDL_QUIT &&
+          !QGuiApplication::focusWindow())
+        continue;
+
       switch (event.type)
       {
         case SDL_QUIT:
@@ -182,10 +191,38 @@ void InputSDLWorker::run()
       }
     }
 
+    m_mutex.lock();
+
+    unsigned long elapsed = (unsigned long)polltimer.elapsed();
+
     // make the poll time fixed to SDL_POLL_TIME
-    if (polltimer.elapsed() < SDL_POLL_TIME)
-      QThread::msleep(SDL_POLL_TIME - polltimer.elapsed());
+    if (elapsed < SDL_POLL_TIME)
+    {
+      unsigned long time = SDL_POLL_TIME - elapsed;
+      bool fg = QGuiApplication::focusWindow();
+      if (!fg)
+        time = ULONG_MAX;
+
+      m_waitCond.wait(&m_mutex, time);
+
+      if (!fg)
+      {
+        SDL_PumpEvents();
+        SDL_FlushEvents(SDL_APP_TERMINATING, SDL_JOYBUTTONUP);
+        SDL_FlushEvents(SDL_CONTROLLERAXISMOTION, SDL_LASTEVENT);
+      }
+    }
+
+    m_mutex.unlock();
   }
+}
+
+//////////////////////////////////////////////////////////////////////////////////////////////////
+void InputSDLWorker::wake()
+{
+  m_mutex.lock();
+  m_waitCond.wakeAll();
+  m_mutex.unlock();
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////////
@@ -238,7 +275,7 @@ InputSDL::InputSDL(QObject* parent) : InputBase(parent)
 InputSDL::~InputSDL()
 {
   close();
-  
+
   if (m_thread->isRunning())
   {
     m_thread->exit(0);
@@ -257,6 +294,12 @@ bool InputSDL::initInput()
     emit run();
 
   return retValue;
+}
+
+//////////////////////////////////////////////////////////////////////////////////////////////////
+void InputSDL::focusIn()
+{
+  m_sdlworker->wake();
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////////
