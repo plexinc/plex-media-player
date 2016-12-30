@@ -41,7 +41,7 @@ bool InputComponent::addInput(InputBase* base)
     QLOG_WARN() << "Failed to init input:" << base->inputName();
     return false;
   }
-  
+
   QLOG_INFO() << "Successfully inited input:" << base->inputName();
   m_inputs.push_back(base);
 
@@ -281,4 +281,11 @@ void InputComponent::cancelAutoRepeat()
   m_autoRepeatTimer->stop();
   m_autoRepeatActions.clear();
   m_autoRepeatCount = 0;
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////
+void InputComponent::focusIn()
+{
+  for (auto input : m_inputs)
+    input->focusIn();
 }

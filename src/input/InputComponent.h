@@ -19,6 +19,8 @@ public:
   virtual bool initInput() = 0;
   virtual const char* inputName() = 0;
 
+  virtual void focusIn() {}
+
   enum InputkeyState
   {
     KeyDown,
@@ -106,6 +108,7 @@ public:
   // should be actually dispatched.
   Q_INVOKABLE void executeActions(const QStringList& actions);
   void cancelAutoRepeat();
+  void focusIn();
 
 signals:
   // Always emitted when any input arrives

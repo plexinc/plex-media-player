@@ -122,6 +122,7 @@ Q_SIGNALS:
 
 protected:
   void focusOutEvent(QFocusEvent* ev) override;
+  void focusInEvent(QFocusEvent* ev) override;
   void resizeEvent(QResizeEvent* event) override;
 
 private slots:

@@ -12,6 +12,7 @@
 #include <QThread>
 #include <QElapsedTimer>
 #include <QByteArray>
+#include <QWaitCondition>
 #include <SDL.h>
 
 #include "input/InputComponent.h"
@@ -34,6 +35,8 @@ class InputSDLWorker : public QObject
 public:
   explicit InputSDLWorker(QObject* parent) : QObject(parent) {}
 
+  void wake();
+
 public slots:
   void run();
   bool initialize();
@@ -51,6 +54,9 @@ private:
   // map axis to up = true or down = false
   QHash<quint8, bool> m_axisState;
   QString m_lastHat;
+
+  QMutex m_mutex;
+  QWaitCondition m_waitCond;
 };
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
@@ -60,17 +66,19 @@ class InputSDL : public InputBase
 public:
   explicit InputSDL(QObject* parent);
   ~InputSDL() override;
-  
+
   const char* inputName() override { return "SDL"; }
   bool initInput() override;
-  
+  void focusIn() override;
+
   void close();
 private:
   InputSDLWorker* m_sdlworker;
   QThread* m_thread;
-  
+
 signals:
   void run();
+  void gotFocusIn();
 };
 
 #endif /* _INPUT_SDL_ */
