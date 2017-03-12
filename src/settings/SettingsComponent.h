@@ -71,6 +71,7 @@ public:
 
   // Fired when a section's description is updated.
   Q_SIGNAL void groupUpdate(const QString& section, const QVariant& description);
+  Q_SIGNAL void setSettingsValue(const QString& section, const QVariant& key);
 
   // Fired when a subset of a section's values are updated. The values parameter will
   // contain the names of the changed values as keys, and the new settings values as

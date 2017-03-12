@@ -344,6 +344,8 @@ void SettingsComponent::setValue(const QString& sectionID, const QString &key, c
   }
   section->setValue(key, value);
   saveSection(section);
+
+  emit setSettingsValue(key, value);
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
