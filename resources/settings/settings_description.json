@@ -151,6 +151,21 @@
         "value": "forceAlwaysFS",
         "default": false,
         "hidden": true
+      },
+      {
+        "value": "forceFSSizeQt",
+        "default": false,
+        "hidden": true
+      },
+      {
+        "value": "forceFSSizeWin32",
+        "default": false,
+        "hidden": true
+      },
+      {
+        "value": "forceAlwaysFSVeryAggressive",
+        "default": false,
+        "hidden": true
       }
     ]
   },

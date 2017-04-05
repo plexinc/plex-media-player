@@ -501,6 +501,31 @@ QScreen* KonvergoWindow::findCurrentScreen()
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
+void KonvergoWindow::forceFSSize()
+{
+  QScreen* realScreen = findCurrentScreen();
+  if (realScreen && realScreen->geometry() != geometry())
+  {
+    QRect rc = realScreen->geometry();
+    QLOG_WARN() << "FS window size does not match screen size!" << geometry() << rc;
+
+    if (SettingsComponent::Get().value(SETTINGS_SECTION_MAIN, "forceFSSizeQt").toBool())
+    {
+      QLOG_WARN() << "Forcing Qt resize";
+      resize(realScreen->geometry().size());
+    }
+#ifdef Q_OS_WIN32
+    if (SettingsComponent::Get().value(SETTINGS_SECTION_MAIN, "forceFSSizeWin32").toBool())
+    {
+      QLOG_WARN() << "Forcing Win32 resize";
+      // Qt "virtualizes" coordinates, so this works only if HIDPI support is off
+      MoveWindow((HWND)winId(), rc.x(), rc.y(), rc.width(), rc.height(), TRUE);
+    }
+#endif
+  }
+}
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
 void KonvergoWindow::onVisibilityChanged(QWindow::Visibility visibility)
 {
   QLOG_DEBUG() << "QWindow visibility set to" << visibility;
@@ -511,7 +536,7 @@ void KonvergoWindow::onVisibilityChanged(QWindow::Visibility visibility)
     QScreen* realScreen = findCurrentScreen();
     if (realScreen && realScreen->geometry() == geometry())
     {
-      QLOG_DEBUG() << "winging it!";
+      QLOG_WARN() << "winging it! (FS flag not set properly)";
       setScreen(realScreen);
       setVisibility(QWindow::FullScreen);
       return;
@@ -526,6 +551,10 @@ void KonvergoWindow::onVisibilityChanged(QWindow::Visibility visibility)
     setVisibility(QWindow::FullScreen);
     return;
   }
+
+  // Reverse to the above win32 case.
+  if (visibility == QWindow::FullScreen)
+    forceFSSize();
 
   if (visibility == QWindow::FullScreen || visibility == QWindow::Windowed)
   {
@@ -693,6 +722,17 @@ void KonvergoWindow::resizeEvent(QResizeEvent* event)
 
   updateSizeDependendProperties(event->size());
   QQuickWindow::resizeEvent(event);
+
+  if (SettingsComponent::Get().value(SETTINGS_SECTION_MAIN, "forceAlwaysFSVeryAggressive").toBool())
+  {
+    if (visibility() == QWindow::Windowed)
+    {
+      QLOG_WARN() << "Forcing re-entering fullscreen because of forceAlwaysFSVeryAggressive setting!";
+      setVisibility(QWindow::FullScreen);
+    }
+
+    forceFSSize();
+  }
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////

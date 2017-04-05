@@ -160,6 +160,7 @@ private:
   QString m_currentScreenName;
 
   void setWebMode(bool newDesktopMode, bool fullscreen);
+  void forceFSSize();
 
   static qreal CalculateScale(const QSize& size);
   static qreal CalculateWebScale(const QSize& size, qreal devicePixelRatio);
