@@ -21,9 +21,9 @@ set(CPACK_STRIP_FILES 1)
 
 
 if(WIN32)
-  include(WindowsInstaller)
+  #include(WindowsInstaller)
   install(FILES ${CMAKE_SOURCE_DIR}/bundle/win/qt.conf DESTINATION .)
-else(WIN32)
+#else(WIN32)
   set(CPACK_GENERATOR "ZIP")
   if(APPLE)
     set(CPACK_INCLUDE_TOPLEVEL_DIRECTORY 0)
