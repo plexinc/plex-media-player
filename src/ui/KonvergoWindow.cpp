@@ -692,14 +692,14 @@ void KonvergoWindow::updateSizeDependendProperties(const QSize& size)
     emit webScaleChanged();
   }
 
-  qreal tvW = qRound64(qMin((qreal)(size.height() * 16) / 9, (qreal)size.width()));
+  qreal tvW = (qreal)size.width();
   if (tvW != m_tvUIw)
   {
     m_tvUIw = tvW;
     emit tvUIWidthChanged();
   }
 
-  qreal tvH = qRound64(qMin((qreal)(size.width() * 9) / 16, (qreal)size.height()));
+  qreal tvH = (qreal)size.height();
   if (tvH != m_tvUIh)
   {
     m_tvUIh = tvH;
