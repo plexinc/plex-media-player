@@ -746,9 +746,7 @@ void KonvergoWindow::resizeEvent(QResizeEvent* event)
 /////////////////////////////////////////////////////////////////////////////////////////
 qreal KonvergoWindow::CalculateScale(const QSize& size)
 {
-  qreal horizontalScale = (qreal)size.width() / (qreal)WEBUI_SIZE.width();
-  qreal verticalScale = (qreal)size.height() / (qreal)WEBUI_SIZE.height();
-  return ROUND(qMin(horizontalScale, verticalScale));
+  return 1;
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////

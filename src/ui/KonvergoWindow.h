@@ -16,7 +16,7 @@
 // The number of pixels here are REAL pixels, the code in webview.qml will compensate
 // for a higher DevicePixelRatio
 //
-#define WEBUI_MAX_HEIGHT 1440.0
+#define WEBUI_MAX_HEIGHT 1800.0
 #define WEBUI_SIZE QSize(1280, 720)
 #define WINDOWW_MIN_SIZE QSize(426, 240)
 
