@@ -84,7 +84,7 @@ void ShowLicenseInfo()
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////
-QStringList g_qtFlags = {"--enable-viewport", "--disable-gpu", "--disable-web-security"};
+QStringList g_qtFlags = {"--enable-viewport", /* "--disable-gpu", */ "--disable-web-security"};
 
 /////////////////////////////////////////////////////////////////////////////////////////
 int main(int argc, char *argv[])

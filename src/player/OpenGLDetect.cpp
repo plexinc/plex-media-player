@@ -22,7 +22,7 @@ void detectOpenGLEarly()
   format.setMajorVersion(3);
   format.setMinorVersion(2);
   format.setProfile(QSurfaceFormat::CoreProfile);
-  QSurfaceFormat::setDefaultFormat(format);
+  //QSurfaceFormat::setDefaultFormat(format);
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
