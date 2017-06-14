@@ -436,6 +436,9 @@ void KonvergoWindow::updateForcedScreen()
 {
   QString screenName = SettingsComponent::Get().value(SETTINGS_SECTION_MAIN, "forceFSScreen").toString();
 
+  if (screenName.isEmpty())
+    return;
+
   for (QScreen* scr : QGuiApplication::screens())
   {
     if (scr->name() == screenName)
