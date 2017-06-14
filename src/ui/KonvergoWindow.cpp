@@ -21,8 +21,6 @@
 #include "Globals.h"
 #include "EventFilter.h"
 
-#define MAX_RECURSION_DEPTH 50
-
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 class ScopedDecrementer
 {
@@ -42,8 +40,7 @@ KonvergoWindow::KonvergoWindow(QWindow* parent) :
   m_lastWindowScale(-1), m_lastWebScale(-1), m_tvUIw(-1), m_tvUIh(-1),
   m_ignoreFullscreenSettingsChange(0),
   m_showedUpdateDialog(false),
-  m_osxPresentationOptions(0),
-  m_eventRecursionDepth(0)
+  m_osxPresentationOptions(0)
 {
   // NSWindowCollectionBehaviorFullScreenPrimary is only set on OSX if Qt::WindowFullscreenButtonHint is set on the window.
   setFlags(flags() | Qt::WindowFullscreenButtonHint);
@@ -366,14 +363,6 @@ void KonvergoWindow::playerWindowVisible(bool visible)
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 void KonvergoWindow::updateMainSectionSettings(const QVariantMap& values)
 {
-  m_eventRecursionDepth++;
-  ScopedDecrementer decrement(&m_eventRecursionDepth);
-  if (m_eventRecursionDepth > MAX_RECURSION_DEPTH)
-  {
-    QLOG_ERROR() << "Maximum recursion depth reached! (updateMainSectionSettings)";
-    return;
-  }
-
   // update mouse visibility if needed
   if (values.find("disablemouse") != values.end())
   {
@@ -525,36 +514,6 @@ void KonvergoWindow::onVisibilityChanged(QWindow::Visibility visibility)
 {
   QLOG_DEBUG() << "QWindow visibility set to" << visibility;
 
-  m_eventRecursionDepth++;
-  ScopedDecrementer decrement(&m_eventRecursionDepth);
-  if (m_eventRecursionDepth > MAX_RECURSION_DEPTH)
-  {
-    QLOG_ERROR() << "Maximum recursion depth reached! (onVisibilityChanged)";
-    return;
-  }
-
-#ifdef Q_OS_WIN32
-  if (visibility == QWindow::Windowed)
-  {
-    QScreen* realScreen = findCurrentScreen();
-    if (realScreen && realScreen->geometry() == geometry())
-    {
-      QLOG_DEBUG() << "winging it!";
-      setScreen(realScreen);
-      setVisibility(QWindow::FullScreen);
-      return;
-    }
-  }
-#endif
-
-  if (visibility == QWindow::Windowed && SettingsComponent::Get().value(SETTINGS_SECTION_MAIN, "forceAlwaysFS").toBool())
-  {
-    QLOG_WARN() << "Forcing re-entering fullscreen because of forceAlwaysFS setting!";
-    updateForcedScreen(); // if a specific screen is forced, try to move the window there
-    setVisibility(QWindow::FullScreen);
-    return;
-  }
-
   if (visibility == QWindow::FullScreen || visibility == QWindow::Windowed)
   {
     m_ignoreFullscreenSettingsChange++;
@@ -660,14 +619,6 @@ void KonvergoWindow::toggleDebug()
 /////////////////////////////////////////////////////////////////////////////////////////
 void KonvergoWindow::updateSizeDependendProperties(const QSize& size)
 {
-  m_eventRecursionDepth++;
-  ScopedDecrementer decrement(&m_eventRecursionDepth);
-  if (m_eventRecursionDepth > MAX_RECURSION_DEPTH)
-  {
-    QLOG_ERROR() << "Maximum recursion depth reached! (updateSizeDependendProperties)";
-    return;
-  }
-
   qreal windowScale = CalculateScale(size);
   if (windowScale != m_lastWindowScale)
   {
@@ -702,30 +653,6 @@ void KonvergoWindow::updateSizeDependendProperties(const QSize& size)
 void KonvergoWindow::resizeEvent(QResizeEvent* event)
 {
   QLOG_DEBUG() << "resize event:" << event->size();
-
-  // This next block was added at some point to workaround a problem with
-  // resizing on windows. Unfortunately it broke the desktop client behavior
-  // and when retried on Windows 10 with Qt5.7 the original bug seems to be
-  // gone. I'll keep this code around until such a time that we dont get any
-  // complaints about it.
-  //
-  #if 0
-  // This next block should never really be needed in a prefect world...
-  // Unfortunatly this is an imperfect world and on windows sometimes what
-  // would happen on startup is that we got a resize event that would make
-  // the window much smaller than fullscreen.
-  //
-
-  if (isFullScreen())
-  {
-    QSize fsSize = screen()->size();
-    if (event->size().width() < fsSize.width() || event->size().height() < fsSize.height())
-    {
-      QLOG_DEBUG() << "Ignoring resize event when in fullscreen...";
-      return;
-    }
-  }
-  #endif
 
   updateSizeDependendProperties(event->size());
   QQuickWindow::resizeEvent(event);

@@ -159,8 +159,6 @@ private:
   unsigned long m_osxPresentationOptions;
   QString m_currentScreenName;
 
-  int m_eventRecursionDepth;
-
   void setWebMode(bool newDesktopMode, bool fullscreen);
 
   static qreal CalculateScale(const QSize& size);
