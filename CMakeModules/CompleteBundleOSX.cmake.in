@@ -25,7 +25,7 @@ set(CODESIGN codesign ${ENTITLEMENTS} --force --sign "Developer ID Application: 
 
 macro(sign_binary BIN)
   execute_process(
-    COMMAND  ${CMAKE_INSTALL_NAME_TOOL} -delete_rpath "@QTROOT@/lib" "@executable_path/Contents/Frameworks/QtWebEngineCore.framework/Versions/5/"
+    COMMAND  ${CMAKE_INSTALL_NAME_TOOL} -delete_rpath "@QTROOT@/lib" "@executable_path/Contents/Frameworks/QtWebEngineCore.framework/Versions/5/
     RESULT_VARIABLE result
     )
 
