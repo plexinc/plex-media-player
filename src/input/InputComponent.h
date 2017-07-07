@@ -18,7 +18,7 @@ public:
   explicit InputBase(QObject* parent = nullptr) : QObject(parent) { qRegisterMetaType<InputBase::InputkeyState>("InputkeyState"); }
   virtual bool initInput() = 0;
   virtual const char* inputName() = 0;
-  
+
   enum InputkeyState
   {
     KeyDown,
@@ -116,7 +116,7 @@ signals:
 
 private Q_SLOTS:
   void remapInput(const QString& source, const QString& keycode, InputBase::InputkeyState keyState);
-  
+
 private:
   explicit InputComponent(QObject *parent = nullptr);
   bool addInput(InputBase* base);
@@ -128,7 +128,6 @@ private:
 
   QTimer* m_autoRepeatTimer;
   QStringList m_autoRepeatActions;
-  qint32 m_autoRepeatCount;
 
   QVariantMap m_currentLongPressAction;
   QTime m_longHoldTimer;
