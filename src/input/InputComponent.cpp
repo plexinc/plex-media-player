@@ -84,7 +84,7 @@ bool InputComponent::componentInitialize()
   addInput(new InputAppleMediaKeys(this));
 #endif
 #ifdef HAVE_SDL
-  addInput(new InputSDL(this));
+  //addInput(new InputSDL(this));
 #endif
 #ifdef HAVE_LIRC
   addInput(new InputLIRC(this));
