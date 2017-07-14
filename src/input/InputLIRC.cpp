@@ -107,8 +107,8 @@ void InputLIRC::read(int handle)
       // it makes GUI unusable
       if ((repeatCount % 3) == 0)
       {
-        bool up = command.endsWith("_LIRCUP");
-        emit receivedInput("LIRC", command, up ? InputBase::KeyUp : InputBase::KeyDown);
+        emit receivedInput("LIRC", command, InputBase::KeyDown);
+        emit receivedInput("LIRC", command, InputBase::KeyUp);
       }
     }
     else
