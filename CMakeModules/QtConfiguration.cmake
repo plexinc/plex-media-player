@@ -6,11 +6,16 @@ if(WIN32)
 endif(WIN32)
 
 if(NOT IS_DIRECTORY ${QTROOT})
+  set(QT_BUILD_NUMBER 156)
+  if(OPENELEC)
+    set(QT_BUILD_NUMBER 140)
+  endif()
+  message(STATUS "Using CI Qt build: ${QT_BUILD_NUMBER}")
   download_deps(
 		"plexmediaplayer-qt"
 		DIRECTORY dir
 		DEPHASH_VAR QT_DEPS_HASH
-    BUILD_NUMBER 156
+    BUILD_NUMBER ${QT_BUILD_NUMBER}
     ARTIFACTNAME konvergo-qt
     DYLIB_SCRIPT_PATH ${PROJECT_SOURCE_DIR}/scripts/fix-install-names.py
 	)
