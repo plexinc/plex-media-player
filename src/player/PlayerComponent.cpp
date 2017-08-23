@@ -118,33 +118,6 @@ bool PlayerComponent::componentInitialize()
   // User-visible stream title used by some audio APIs (at least PulseAudio and wasapi).
   mpv::qt::set_property(m_mpv, "title", QCoreApplication::applicationName());
 
-  mpv::qt::set_property(m_mpv, "tls-verify", "yes");
-
-#if !defined(Q_OS_WIN) && !defined(Q_OS_MAC)
-  QList<QByteArray> list;
-  list << "/etc/ssl/certs/ca-certificates.crt"
-       << "/etc/pki/tls/certs/ca-bundle.crt"
-       << "/usr/share/ssl/certs/ca-bundle.crt"
-       << "/usr/local/share/certs/ca-root-nss.crt"
-       << "/etc/ssl/cert.pem"
-       << "/usr/share/curl/curl-ca-bundle.crt"
-       << "/usr/local/share/curl/curl-ca-bundle.crt";
-
-  bool success = false;
-
-  for (auto path : list)
-  {
-    if (access(path.data(), R_OK) == 0) {
-      mpv::qt::set_property(m_mpv, "tls-ca-file", path.data());
-      success = true;
-      break;
-    }
-  }
-
-  if (!success)
-    throw FatalException(tr("Failed to locate CA bundle."));
-#endif
-
   // Apply some low-memory settings on RPI, which is relatively memory-constrained.
 #ifdef TARGET_RPI
   // The backbuffer makes seeking back faster (without having to do a HTTP-level seek)
@@ -826,12 +799,6 @@ void PlayerComponent::reselectStream(const QString &streamSelection, MediaType t
 
   if (!streamName.isEmpty())
   {
-    if (streamName.startsWith("https://")) {
-      QUrl qurl = streamName;
-      qurl.setHost(ConvertPlexDirectURL(qurl.host()));
-      streamName = qurl.toString();
-    }
-
     auto streams = findStreamsForURL(streamName);
     if (streams.isEmpty())
     {
