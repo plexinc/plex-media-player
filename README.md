@@ -111,7 +111,7 @@ Sometimes, PMP's cmake run mysteriously fails. It's possible that https://bugrep
 * locate ``Qt5CoreConfigExtras.cmake`` of your Qt build/installation
 * comment ``set_property(TARGET Qt5::Core PROPERTY INTERFACE_COMPILE_FEATURES cxx_decltype)`` with ``#``
 
-Sometimes, PMP will pick up SDL 1.x libraries. This is not supported and will lead to build failures. You need SDL 2. You can disable use of SLD with ``-DENABLE_SDL2=off`` (it's used for some remotes).
+Sometimes, PMP will pick up SDL 1.x libraries. This is not supported and will lead to build failures. You need SDL 2. You can disable use of SDL with ``-DENABLE_SDL2=off`` (it's used for some remotes).
 
 ## License
 
