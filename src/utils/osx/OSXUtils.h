@@ -4,15 +4,16 @@
 #include <QString>
 #include <ApplicationServices/ApplicationServices.h>
 
+class KonvergoWindow;
+
 namespace OSXUtils
 {
   QString ComputerName();
   OSStatus SendAppleEventToSystemProcess(AEEventID eventToSendID);
 
-  void SetPresentationOptions(unsigned long flags);
-  unsigned long GetPresentationOptions();
-  unsigned long GetPresentationOptionsForFullscreen(bool hideMenuAndDock);
   void SetCursorVisible(bool visible);
+
+  void SetWindowRestoration(KonvergoWindow* window);
 };
 
 #endif /* OSXUTILS_H */
