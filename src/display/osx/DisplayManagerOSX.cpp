@@ -51,7 +51,7 @@ bool DisplayManagerOSX::initialize()
     for (int modeid = 0; modeid < numModes; modeid++)
     {
       totalModes++;
-      
+
       // add the videomode to the display
       DMVideoModePtr mode = DMVideoModePtr(new DMVideoMode);
       mode->m_id = modeid;
@@ -94,7 +94,7 @@ bool DisplayManagerOSX::setDisplayMode(int display, int mode)
 {
   if (!isValidDisplayMode(display, mode) || !m_osxDisplayModes[display])
     return false;
-  
+
   CGDisplayModeRef displayMode =
   (CGDisplayModeRef)CFArrayGetValueAtIndex(m_osxDisplayModes[display], mode);
 
@@ -113,7 +113,7 @@ int DisplayManagerOSX::getCurrentDisplayMode(int display)
 {
   if (!isValidDisplay(display) || !m_osxDisplayModes[display])
     return -1;
-  
+
   CGDisplayModeRef currentMode = CGDisplayCopyDisplayMode(m_osxDisplays[display]);
   uint32_t currentIOKitID = CGDisplayModeGetIODisplayModeID(currentMode);
 

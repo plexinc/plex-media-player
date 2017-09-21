@@ -117,9 +117,12 @@ private slots:
   void updateCurrentScreen();
 
 private:
+  QRect getDefaultGeometry();
+#ifndef Q_OS_MAC
   void saveGeometry();
   QRect loadGeometry();
   QRect loadGeometryRect();
+#endif
   bool fitsInScreens(const QRect& rc);
   QScreen* loadLastScreen();
   void updateScreens();
@@ -133,7 +136,6 @@ private:
   bool m_webDesktopMode;
   bool m_showedUpdateDialog;
 
-  unsigned long m_osxPresentationOptions;
   QString m_currentScreenName;
 
   void setWebMode(bool newDesktopMode, bool fullscreen);

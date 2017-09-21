@@ -1,5 +1,7 @@
 #include "OSXUtils.h"
 #include "QsLog.h"
+#include "ui/KonvergoWindow.h"
+#include "core/Globals.h"
 #import <Cocoa/Cocoa.h>
 
 /////////////////////////////////////////////////////////////////////////////////////////
@@ -47,4 +49,31 @@ void OSXUtils::SetCursorVisible(bool visible)
     [NSCursor unhide];
   else
     [NSCursor hide];
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////
+@interface PMPWindowRestoration : NSObject
++ (void)restoreWindowWithIdentifier:(NSString *)identifier
+                              state:(NSCoder *)state
+                  completionHandler:(void (^)(NSWindow *, NSError *))completionHandler;
+@end
+
+@implementation PMPWindowRestoration
+
++ (void)restoreWindowWithIdentifier:(NSString *)identifier state:(NSCoder *)state completionHandler:(void (^)(NSWindow *, NSError *))completionHandler
+{
+  KonvergoWindow* window = Globals::MainWindow();
+  NSView* view = (NSView*)window->winId();
+  completionHandler(view.window, nil);
+}
+
+@end
+
+/////////////////////////////////////////////////////////////////////////////////////////
+void OSXUtils::SetWindowRestoration(KonvergoWindow* window)
+{
+  NSView* view = (NSView*)window->winId();
+  NSWindow* win = view.window;
+  win.restorable = YES;
+  win.restorationClass = [PMPWindowRestoration class];
 }
