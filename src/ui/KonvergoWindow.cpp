@@ -42,7 +42,6 @@ KonvergoWindow::KonvergoWindow(QWindow* parent) :
   m_lastWindowScale(-1), m_lastWebScale(-1), m_tvUIw(-1), m_tvUIh(-1),
   m_ignoreFullscreenSettingsChange(0),
   m_showedUpdateDialog(false),
-  m_osxPresentationOptions(0),
   m_eventRecursionDepth(0)
 {
   // NSWindowCollectionBehaviorFullScreenPrimary is only set on OSX if Qt::WindowFullscreenButtonHint is set on the window.
@@ -72,7 +71,18 @@ KonvergoWindow::KonvergoWindow(QWindow* parent) :
   setColor(QColor("#111111"));
 #endif
 
+#ifdef Q_OS_MAC
+  OSXUtils::SetWindowRestoration(this);
+  // If we're on macOS, just load the default geometry; Cocoa will restore our size,
+  // position, and fullscreen status from our last session (if applicable).
+  //
+  QRect loadedGeo = getDefaultGeometry();
+  setGeometry(loadedGeo);
+  setVisibility(QWindow::Windowed);
+#else
   QRect loadedGeo = loadGeometry();
+#endif
+
   updateSizeDependendProperties(loadedGeo.size());
 
   connect(SettingsComponent::Get().getSection(SETTINGS_SECTION_MAIN), &SettingsSection::valuesUpdated,
@@ -106,13 +116,9 @@ KonvergoWindow::KonvergoWindow(QWindow* parent) :
   connect(&UpdaterComponent::Get(), &UpdaterComponent::downloadComplete,
           this, &KonvergoWindow::showUpdateDialog);
 
-#ifdef Q_OS_MAC
-  m_osxPresentationOptions = 0;
-#endif
-
 #ifdef KONVERGO_OPENELEC
   setVisibility(QWindow::FullScreen);
-#else
+#elsif !defined(Q_OS_MAC)
   updateWindowState(false);
 #endif
 
@@ -174,8 +180,10 @@ void KonvergoWindow::showUpdateDialog()
 /////////////////////////////////////////////////////////////////////////////////////////
 void KonvergoWindow::closingWindow()
 {
+#ifndef Q_OS_MAC
   if (!SettingsComponent::Get().value(SETTINGS_SECTION_MAIN, "fullscreen").toBool())
     saveGeometry();
+#endif
 
   qApp->quit();
 }
@@ -197,6 +205,21 @@ bool KonvergoWindow::fitsInScreens(const QRect& rc)
   return false;
 }
 
+///////////////////////////////////////////////////////////////////////////////////////////////////
+QRect KonvergoWindow::getDefaultGeometry()
+{
+  // Default to 720p in the middle of the screen
+  if (QScreen *curScreen = screen())
+  {
+    return QRect((curScreen->geometry().width() - WEBUI_SIZE.width()) / 2,
+                 (curScreen->geometry().height() - WEBUI_SIZE.height()) / 2,
+                 WEBUI_SIZE.width(), WEBUI_SIZE.height());
+  }
+
+  return QRect(0, 0, WEBUI_SIZE.width(), WEBUI_SIZE.height());
+}
+
+#ifndef Q_OS_MAC
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 void KonvergoWindow::saveGeometry()
 {
@@ -262,15 +285,7 @@ QRect KonvergoWindow::loadGeometry()
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 QRect KonvergoWindow::loadGeometryRect()
 {
-  // if we dont have anything, default to 720p in the middle of the screen
-  QScreen *curScreen = screen();
-  QRect defaultRect = QRect(0, 0, WEBUI_SIZE.width(), WEBUI_SIZE.height());
-  if (curScreen)
-  {
-    defaultRect = QRect((curScreen->geometry().width() - WEBUI_SIZE.width()) / 2,
-                        (curScreen->geometry().height() - WEBUI_SIZE.height()) / 2,
-                        WEBUI_SIZE.width(), WEBUI_SIZE.height());
-  }
+  QRect defaultRect = getDefaultGeometry();
 
   QVariantMap map = SettingsComponent::Get().value(SETTINGS_SECTION_STATE, "geometry").toMap();
   if (map.isEmpty())
@@ -303,6 +318,7 @@ QRect KonvergoWindow::loadGeometryRect()
 
   return rc;
 }
+#endif
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 void KonvergoWindow::enableVideoWindow()
@@ -466,10 +482,12 @@ void KonvergoWindow::updateWindowState(bool saveGeo)
 {
   if (SettingsComponent::Get().value(SETTINGS_SECTION_MAIN, "fullscreen").toBool() || SystemComponent::Get().isOpenELEC() || SettingsComponent::Get().value(SETTINGS_SECTION_MAIN, "forceAlwaysFS").toBool())
   {
+#ifndef Q_OS_MAC
     // if we were go from windowed to fullscreen
     // we want to store our current windowed position
     if (!isFullScreen() && saveGeo)
       saveGeometry();
+#endif
 
     setVisibility(QWindow::FullScreen);
 
@@ -483,7 +501,9 @@ void KonvergoWindow::updateWindowState(bool saveGeo)
   else
   {
     setVisibility(QWindow::Windowed);
+#ifndef Q_OS_MAC
     loadGeometry();
+#endif
 
     Qt::WindowFlags forceOnTopFlags = Qt::WindowStaysOnTopHint;
 #ifdef Q_WS_X11
@@ -565,19 +585,6 @@ void KonvergoWindow::onVisibilityChanged(QWindow::Visibility visibility)
 
     SystemComponent::Get().setCursorVisibility(false);
   }
-
-#ifdef Q_OS_MAC
-  if (visibility == QWindow::Windowed)
-  {
-    QTimer::singleShot(1 * 1000, [this] { OSXUtils::SetPresentationOptions(m_osxPresentationOptions); });
-  }
-  else if (visibility == QWindow::FullScreen)
-  {
-    QTimer::singleShot(1 * 1000, [this] {
-      OSXUtils::SetPresentationOptions(m_osxPresentationOptions | OSXUtils::GetPresentationOptionsForFullscreen(!m_webDesktopMode));
-    });
-  }
-#endif
 
   InputComponent::Get().cancelAutoRepeat();
   updateSizeDependendProperties(size());
