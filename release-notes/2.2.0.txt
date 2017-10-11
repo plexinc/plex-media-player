@@ -1,0 +1,21 @@
+NEW:
+
+- Resolve plex.direct domains internally. Enabled playback from secure servers when PMP is not connected to the Internet.
+- Initial support for Bluetooth and Touch Bar controls on macOS.
+- Enable refreshrate.avoid_25hz_30hz by default.
+- UI: Add support for TV show theme music (`Settings > Main > Play Theme Music`).
+- UI: Summary text boxes show the entire summary text when selected.
+- UI: Respect account privacy settings instead of using client-specific opt-out.
+- UI: Poster and list items titles will automatically scroll when they are too long to display in their entirety.
+- UI: Add ability to select audio and subtitle tracks from video preplay pages.
+
+FIXED:
+
+- Avoid corruption issues when GL context sharing between Qt and WebEngine fails. 5K macs (the previous corruption issue) still work, thanks to our Qt patches.
+- UI: Improve Plex Companion controller remote control integration.
+- UI: Display album art in music playlists.
+- UI: Fixed an issue with the app crashing when attempting to exit via shortcut.
+- UI: Fix rare issue with some clients not showing up as Companion players on certain devices.
+- UI: 'Go to Show|Artist' buttons navigated to the v1 layout.
+- UI: The toolbar sometimes did not reappear when scrolling back up a library list on certain platforms.
+- UI: Mark partially watched items as watched when toggling watched status.
