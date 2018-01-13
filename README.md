@@ -94,7 +94,7 @@ Assuming that everything else has installed correctly, building Plex Media Playe
 * ``mkdir build``
 * ``cd build``
 * ``conan install ..``
-* ``cmake -DCMAKE_BUILD_TYPE=Debug -DQTROOT=/opt/Qt5.6.1/5.6/gcc_64/ -DCMAKE_INSTALL_PREFIX=/usr/local/ ..``
+* ``cmake -DCMAKE_BUILD_TYPE=Debug -DQTROOT=/opt/Qt5.7.1/5.7/gcc_64/ -DCMAKE_INSTALL_PREFIX=/usr/local/ ..``
 * ``make -j4``
 * ``sudo make install``
 
