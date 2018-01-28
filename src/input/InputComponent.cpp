@@ -75,6 +75,8 @@ bool InputComponent::componentInitialize()
   // load our input mappings
   m_mappings->loadMappings();
 
+  SettingsComponent::Get().setValue("system", "lircd_enabled", true); 
+
   addInput(&InputKeyboard::Get());
   addInput(new InputSocket(this));
   addInput(new InputRoku(this));
