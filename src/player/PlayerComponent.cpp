@@ -113,9 +113,8 @@ bool PlayerComponent::componentInitialize()
 
   // Do not let the decoder downmix (better customization for us).
   mpv::qt::set_property(m_mpv, "ad-lavc-downmix", false);
-
-  // Make it load the hwdec interop, so hwdec can be enabled at runtime.
-  mpv::qt::set_property(m_mpv, "hwdec-preload", "auto");
+ // Make it load the hwdec interop, so hwdec can be enabled at runtime.
+  mpv::qt::set_property(m_mpv, "gpu-hwdec-interop", "auto");
 
   // User-visible application name used by some audio APIs (at least PulseAudio).
   mpv::qt::set_property(m_mpv, "audio-client-name", QCoreApplication::applicationName());
@@ -1082,22 +1081,22 @@ void PlayerComponent::setAudioConfiguration()
 void PlayerComponent::updateSubtitleSettings()
 {
   QVariant size = SettingsComponent::Get().value(SETTINGS_SECTION_SUBTITLES, "size");
-  mpv::qt::set_property(m_mpv, "sub-text-font-size", size);
+  mpv::qt::set_property(m_mpv, "sub-font-size", size);
 
   QVariant colorsString = SettingsComponent::Get().value(SETTINGS_SECTION_SUBTITLES, "color");
   auto colors = colorsString.toString().split(",");
   if (colors.length() == 2)
   {
-    mpv::qt::set_property(m_mpv, "sub-text-color", colors[0]);
-    mpv::qt::set_property(m_mpv, "sub-text-border-color", colors[1]);
+    mpv::qt::set_property(m_mpv, "sub-color", colors[0]);
+    mpv::qt::set_property(m_mpv, "sub-border-color", colors[1]);
   }
 
   QVariant subposString = SettingsComponent::Get().value(SETTINGS_SECTION_SUBTITLES, "placement");
   auto subpos = subposString.toString().split(",");
   if (subpos.length() == 2)
   {
-    mpv::qt::set_property(m_mpv, "sub-text-align-x", subpos[0]);
-    mpv::qt::set_property(m_mpv, "sub-text-align-y", subpos[1]);
+    mpv::qt::set_property(m_mpv, "sub-align-x", subpos[0]);
+    mpv::qt::set_property(m_mpv, "sub-align-y", subpos[1]);
   }
 }
 
