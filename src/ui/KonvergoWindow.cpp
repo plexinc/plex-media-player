@@ -16,6 +16,7 @@
 #include "player/PlayerComponent.h"
 #include "player/PlayerQuickItem.h"
 #include "display/DisplayComponent.h"
+#include "ui/WindowComponent.h"
 #include "QsLog.h"
 #include "utils/Utils.h"
 #include "Globals.h"
@@ -115,6 +116,8 @@ KonvergoWindow::KonvergoWindow(QWindow* parent) :
 
   connect(qApp, &QGuiApplication::screenAdded, this, &KonvergoWindow::onScreenAdded);
   connect(qApp, &QGuiApplication::screenRemoved, this, &KonvergoWindow::onScreenRemoved);
+
+  WindowComponent::Get().setWindow(this);
 
   emit enableVideoWindowSignal();
 }
