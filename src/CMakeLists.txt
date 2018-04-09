@@ -189,7 +189,7 @@ target_link_libraries(${MAIN_TARGET}
   shared
   qhttp
   qslog
-  ${MPV_LIBRARY}
+  ${MPV_LIBRARIES}
   ${OPENGL_LIBS}
   ${QT5_LIBRARIES}
   ${OS_LIBS}

@@ -11,5 +11,10 @@ else(NOT OPENGL_FOUND)
   set(OPENGL_LIBS ${OPENGL_gl_LIBRARY})
 endif(NOT OPENGL_FOUND)
 
-find_package(MPV REQUIRED)
-include_directories(${MPV_INCLUDE_DIR})
+# checks inimal mpv version, for reference :
+# https://github.com/mpv-player/mpv/blob/master/DOCS/client-api-changes.rst
+pkg_check_modules(MPV REQUIRED mpv>=1.23)
+if (MPV_FOUND)
+    include_directories(${MPV_INCLUDE_DIRS})
+    link_directories(${MPV_LIBRARY_DIRS})
+endif(MPV_FOUND)
