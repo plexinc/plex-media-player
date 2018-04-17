@@ -119,6 +119,10 @@ public:
 
   QRect videoRectangle() { return m_videoRectangle; }
 
+  // Set the playback speed (1.0 = normal speed, 2.0 = 2x)
+  Q_INVOKABLE void setPlaybackSpeed(double speed);
+  Q_INVOKABLE virtual double playbackSpeed();
+
   const mpv::qt::Handle getMpvHandle() const { return m_mpv; }
 
   virtual void setWindow(QQuickWindow* window);

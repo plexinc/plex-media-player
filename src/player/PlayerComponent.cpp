@@ -1524,3 +1524,17 @@ QString PlayerComponent::videoInformation() const
   return infoStr;
 }
 
+/////////////////////////////////////////////////////////////////////////////////////////
+void PlayerComponent::setPlaybackSpeed(double speed)
+{
+  mpv::qt::set_property(m_mpv, "speed", speed);
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////
+double PlayerComponent::playbackSpeed()
+{
+  QVariant speed = mpv::qt::get_property(m_mpv, "speed");
+  if (speed.isValid())
+    return speed.toDouble();
+  return 0;
+}
