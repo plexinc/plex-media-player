@@ -1,3 +1,5 @@
+include(GNUInstallDirs)
+
 find_package(X11)
 if(X11_FOUND AND X11_Xrandr_FOUND)
   include_directories(X11_X11_INCLUDE_PATH X11_Xrandr_INCLUDE_PATH)
@@ -16,5 +18,9 @@ else()
   Message(STATUS "Enabling D-Bus power management")
 endif()
 
-set(INSTALL_BIN_DIR bin)
-set(INSTALL_RESOURCE_DIR share/plexmediaplayer)
+set(INSTALL_BIN_DIR ${CMAKE_INSTALL_BINDIR})
+set(INSTALL_RESOURCE_DIR ${CMAKE_INSTALL_DATADIR}/plexmediaplayer)
+
+if(NOT OPENELEC)
+  include(InstallLinuxDesktopFile)
+endif()
