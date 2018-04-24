@@ -106,7 +106,7 @@ KonvergoWindow::KonvergoWindow(QWindow* parent) :
 #endif
 
 #ifdef KONVERGO_OPENELEC
-  setVisibility(QWindow::FullScreen);
+  setWindowFullScreen(true);
 #else
   updateWindowState(false);
 #endif
@@ -427,25 +427,31 @@ void KonvergoWindow::updateMainSectionSettings(const QVariantMap& values)
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
-void KonvergoWindow::updateForcedScreen()
+bool KonvergoWindow::updateForcedScreen()
 {
   QString screenName = SettingsComponent::Get().value(SETTINGS_SECTION_MAIN, "forceFSScreen").toString();
 
   if (screenName.isEmpty())
-    return;
+    return false;
 
   for (QScreen* scr : QGuiApplication::screens())
   {
     if (scr->name() == screenName)
     {
       QLOG_DEBUG() << "Forcing screen to" << scr->name();
+#ifdef Q_OS_MAC
+      OSXUtils::SetWindowFullScreenOnSpecificScreen(this, scr->geometry());
+#else
       setScreen(scr);
       setGeometry(scr->geometry());
-      setVisibility(QWindow::FullScreen);
+      setWindowFullScreen(true);
+#endif
       InputComponent::Get().cancelAutoRepeat();
-      return;
+      return true;
     }
   }
+  
+  return false;
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
@@ -458,19 +464,36 @@ void KonvergoWindow::updateWindowState(bool saveGeo)
     if (!isFullScreen() && saveGeo)
       saveGeometry();
 
-    setVisibility(QWindow::FullScreen);
-
     // When fullscreening explicitly, we might have to move the window to a
-    // different screen, as Qt will fullscreen to the current screen.
+    // different screen, as both Qt and macOS will fullscreen to the current
+    // screen.
+#ifdef Q_OS_MAC
+    if (!updateForcedScreen()) {
+      setWindowFullScreen(true);
+    }
+#else
     QTimer::singleShot(200, [=]
     {
       updateForcedScreen();
     });
+#endif
   }
   else
   {
-    setVisibility(QWindow::Windowed);
+    setWindowFullScreen(false);
+    
+#ifdef Q_OS_MAC
+    // We have to wait for macOS's full screen animation to finish before we
+    // move the window, otherwise it may move to the other screen before the
+    // window server recognizes it's actually on that screen, causing it to
+    // be completely invisible and with essentially no way to get it back!
+    QTimer::singleShot(1000, [=]
+    {
+      loadGeometry();
+    });
+#else
     loadGeometry();
+#endif
 
     Qt::WindowFlags forceOnTopFlags = Qt::WindowStaysOnTopHint;
 #ifdef Q_WS_X11
@@ -520,7 +543,7 @@ void KonvergoWindow::onVisibilityChanged(QWindow::Visibility visibility)
     {
       QLOG_WARN() << "winging it!";
       setScreen(realScreen);
-      setVisibility(QWindow::FullScreen);
+      setWindowFullScreen(true);
       return;
     }
   }
@@ -530,7 +553,7 @@ void KonvergoWindow::onVisibilityChanged(QWindow::Visibility visibility)
   {
     QLOG_WARN() << "Forcing re-entering fullscreen because of forceAlwaysFS setting!";
     updateForcedScreen(); // if a specific screen is forced, try to move the window there
-    setVisibility(QWindow::FullScreen);
+    setWindowFullScreen(true);
     return;
   }
 
@@ -772,4 +795,23 @@ void KonvergoWindow::updateCurrentScreen()
   QString currentName = current ? current->name() : "";
   if (currentName != m_currentScreenName)
     updateScreens();
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////
+void KonvergoWindow::setWindowFullScreen(bool fullScreen)
+{
+#ifdef Q_OS_MAC
+    if (fullScreen) {
+        setVisibility(QWindow::Windowed);
+        OSXUtils::SetWindowFullScreen(this, true);
+    } else {
+        OSXUtils::SetWindowFullScreen(this, false);
+        setVisibility(QWindow::Windowed);
+    }
+#else
+    if (fullScreen)
+        setVisibility(QWindow::FullScreen);
+    else
+        setVisibility(QWindow::Windowed);
+#endif
 }

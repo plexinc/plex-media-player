@@ -122,8 +122,9 @@ private:
   bool fitsInScreens(const QRect& rc);
   QScreen* loadLastScreen();
   void updateScreens();
-  void updateForcedScreen();
+  bool updateForcedScreen();
   QScreen* findCurrentScreen();
+  void setWindowFullScreen(bool fullScreen);
 
   bool m_debugLayer;
   QTimer* m_infoTimer;

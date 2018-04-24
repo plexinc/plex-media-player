@@ -1,5 +1,7 @@
 #include "OSXUtils.h"
 #include "QsLog.h"
+#include "ui/KonvergoWindow.h"
+#include <QTimer>
 #import <Cocoa/Cocoa.h>
 
 /////////////////////////////////////////////////////////////////////////////////////////
@@ -80,4 +82,84 @@ void OSXUtils::SetCursorVisible(bool visible)
     [NSCursor unhide];
   else
     [NSCursor hide];
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////
+static NSWindow * qtWindowToCocoaWindow(QWindow *qtWindow)
+{
+  if (!qtWindow)
+    return nil;
+
+  NSView* cocoaView = (NSView*)qtWindow->winId();
+
+  if (!cocoaView)
+    return nil;
+
+  return cocoaView.window;
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////
+static bool isWindowFullScreen(NSWindow *cocoaWindow)
+{
+  return cocoaWindow.styleMask & NSFullScreenWindowMask;
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////
+bool OSXUtils::isWindowFullScreen(QWindow *qtWindow)
+{
+  NSWindow* cocoaWindow = qtWindowToCocoaWindow(qtWindow);
+
+  if (!cocoaWindow)
+    return false;
+
+  return isWindowFullScreen(cocoaWindow);
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////
+static void SetWindowFullScreen(NSWindow *cocoaWindow, bool fullScreen)
+{
+  if (!cocoaWindow || fullScreen == isWindowFullScreen(cocoaWindow))
+    return;
+
+  [cocoaWindow toggleFullScreen:nil];
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////
+void OSXUtils::SetWindowFullScreen(QWindow *qtWindow, bool fullScreen)
+{
+  SetWindowFullScreen(qtWindowToCocoaWindow(qtWindow), fullScreen);
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////
+static void MoveWindowWithinScreen(NSWindow *cocoaWindow, QRect screenRect)
+{
+  if (!cocoaWindow)
+    return;
+
+  int padding = 50;
+  [cocoaWindow setFrame:NSMakeRect(screenRect.left() + padding, screenRect.top() + padding,
+                                   screenRect.width() - padding*2, screenRect.height() - padding*2) display:YES animate:NO];
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////
+void OSXUtils::SetWindowFullScreenOnSpecificScreen(QWindow *qtWindow, QRect screenRect)
+{
+  NSWindow* cocoaWindow = qtWindowToCocoaWindow(qtWindow);
+
+  if (!cocoaWindow)
+    return;
+
+  if (isWindowFullScreen(cocoaWindow)) {
+    SetWindowFullScreen(cocoaWindow, false);
+
+    // Need to wait for the full screen animation to finish
+    QTimer::singleShot(1000, [=] ()
+    {
+      MoveWindowWithinScreen(cocoaWindow, screenRect);
+      SetWindowFullScreen(cocoaWindow, true);
+    });
+  } else {
+    MoveWindowWithinScreen(cocoaWindow, screenRect);
+    SetWindowFullScreen(cocoaWindow, true);
+  }
 }

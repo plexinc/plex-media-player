@@ -2,6 +2,8 @@
 #define OSXUTILS_H
 
 #include <QString>
+#include <QWindow>
+#include <QRect>
 #include <ApplicationServices/ApplicationServices.h>
 
 namespace OSXUtils
@@ -13,6 +15,9 @@ namespace OSXUtils
   unsigned long GetPresentationOptions();
   unsigned long GetPresentationOptionsForFullscreen(bool hideMenuAndDock);
   void SetCursorVisible(bool visible);
+  bool isWindowFullScreen(QWindow *window);
+  void SetWindowFullScreen(QWindow *window, bool fullScreen);
+  void SetWindowFullScreenOnSpecificScreen(QWindow *qtWindow, QRect screenRect);
 };
 
 #endif /* OSXUTILS_H */
