@@ -185,11 +185,11 @@ bool PlayerComponent::componentInitialize()
   // Setup a hook with the ID 1, which is run during the file is loaded.
   // Used to delay playback start for display framerate switching.
   // (See handler in handleMpvEvent() for details.)
-  mpv::qt::command(m_mpv, QStringList() << "hook-add" << "on_load" << "1" << "0");
+  mpv_hook_add(m_mpv, 1, "on_load", 0);
 
   // Setup a hook with the ID 2, which is run at a certain stage during loading.
   // We use it to initialize stream selections and to probe the codecs.
-  mpv::qt::command(m_mpv, QStringList() << "hook-add" << "on_preloaded" << "2" << "0");
+  mpv_hook_add(m_mpv, 2, "on_preloaded", 0);
 
   updateAudioDeviceList();
   setAudioConfiguration();
@@ -597,24 +597,26 @@ void PlayerComponent::handleMpvEvent(mpv_event *event)
         QLOG_ERROR() << qPrintable(logline);
       break;
     }
-    case MPV_EVENT_CLIENT_MESSAGE:
+    case MPV_EVENT_HOOK:
     {
-      mpv_event_client_message *msg = (mpv_event_client_message *)event->data;
-      if (msg->num_args < 3 || strcmp(msg->args[0], "hook_run") != 0)
+      mpv_event_hook *hook = (mpv_event_hook *)event->data;
+      if (!hook)
         break;
-      QString resumeId = QString::fromUtf8(msg->args[2]);
+
+      uint64_t hookid = hook->id;
       // Start "on_load" hook.
       // This happens when the player is about to load the file, but no actual loading has taken part yet.
       // We use this to block loading until we explicitly tell it to continue.
-      if (!strcmp(msg->args[1], "1"))
+      if (!strcmp(hook->name, "on_load"))
       {
         // Calling this lambda will instruct mpv to continue loading the file.
         auto resume = [=] {
           QLOG_INFO() << "checking codecs";
           startCodecsLoading([=] {
             QLOG_INFO() << "resuming loading";
-            mpv::qt::command(m_mpv, QStringList() << "hook-ack" << resumeId);
+            mpv_hook_continue(m_mpv, hookid);
           });
+         
         };
         if (switchDisplayFrameRate())
         {
@@ -634,12 +636,13 @@ void PlayerComponent::handleMpvEvent(mpv_event *event)
       }
       // Start "on_preloaded" hook.
       // Used initialize stream selections and to probe codecs.
-      if (!strcmp(msg->args[1], "2"))
+      if (!strcmp(hook->name, "on_preloaded"))
       {
         reselectStream(m_currentSubtitleStream, MediaType::Subtitle);
         reselectStream(m_currentAudioStream, MediaType::Audio);
         startCodecsLoading([=] {
-          mpv::qt::command(m_mpv, QStringList() << "hook-ack" << resumeId);
+          QLOG_INFO() << "resuming loading";
+          mpv_hook_continue(m_mpv, hookid);
         });
         break;
       }
