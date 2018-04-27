@@ -92,7 +92,7 @@
     
     <!-- Start Menu shortcut -->
     <DirectoryRef Id="PlexStartMenuFolder">
-      <Component Id="PlexMediaPlayerShortcuts" Guid="*">
+      <Component Id="PlexMediaPlayerShortcuts" Guid="*" Permanent="yes">
 
         <Shortcut Id="PlexMediaPlayerExeShortcut"
                   Name="Plex Media Player"
