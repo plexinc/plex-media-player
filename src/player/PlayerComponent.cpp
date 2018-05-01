@@ -1246,13 +1246,8 @@ QList<CodecDriver> convertCodecList(QVariant list, CodecType type)
   {
     QVariantMap map = e.toMap();
 
-    QString family = map["family"].toString();
     QString codec = map["codec"].toString();
     QString driver = map["driver"].toString();
-
-    // Only include FFmpeg codecs; exclude pseudo-codecs like spdif.
-    if (family != "lavc")
-      continue;
 
     CodecDriver ncodec = {};
     ncodec.type = type;
