@@ -6,7 +6,7 @@
 #include <QOpenGLFramebufferObject>
 
 #include <mpv/client.h>
-#include <mpv/opengl_cb.h>
+#include <mpv/render_gl.h>
 
 #ifdef Q_OS_WIN32
 #include <windows.h>
@@ -34,9 +34,10 @@ public slots:
 private:
   static void on_update(void *ctx);
   mpv::qt::Handle m_mpv;
-  mpv_opengl_cb_context* m_mpvGL;
+  mpv_render_context *m_mpv_gl;
   QQuickWindow* m_window;
   QSize m_size;
+  bool m_flip;
   HANDLE m_hAvrtHandle;
   QRect m_videoRectangle;
   QOpenGLFramebufferObject* m_fbo;
@@ -64,7 +65,7 @@ private slots:
 
 private:
     mpv::qt::Handle m_mpv;
-    mpv_opengl_cb_context* m_mpvGL;
+    mpv_render_context *m_mpv_gl;
     PlayerRenderer* m_renderer;
     QString m_debugInfo;
 };
