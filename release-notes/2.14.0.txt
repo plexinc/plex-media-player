@@ -6,4 +6,5 @@ FIXED:
 - Fixed error showing when recording is post processing
 - Fixed troubles selecting embedded subtitle streams in videos without audio streams
 - Fixed grid view programs getting duplicated when refreshing EPG with grid view open
+- Fixed video quality setting does not properly show user selection
 
