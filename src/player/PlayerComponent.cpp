@@ -115,7 +115,8 @@ bool PlayerComponent::componentInitialize()
 
   // Do not let the decoder downmix (better customization for us).
   mpv::qt::set_property(m_mpv, "ad-lavc-downmix", false);
- // Make it load the hwdec interop, so hwdec can be enabled at runtime.
+
+  // Make it load the hwdec interop, so hwdec can be enabled at runtime.
   mpv::qt::set_property(m_mpv, "gpu-hwdec-interop", "auto");
 
   // User-visible application name used by some audio APIs (at least PulseAudio).
