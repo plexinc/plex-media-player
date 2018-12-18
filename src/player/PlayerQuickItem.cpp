@@ -100,12 +100,12 @@ bool PlayerRenderer::init()
 
   static mpv_render_param params[] =
   {
-      {MPV_RENDER_PARAM_API_TYPE, (void *)MPV_RENDER_API_TYPE_OPENGL},
-      {MPV_RENDER_PARAM_OPENGL_INIT_PARAMS, &opengl_init_params},
+      { MPV_RENDER_PARAM_API_TYPE, (void *)MPV_RENDER_API_TYPE_OPENGL },
+      { MPV_RENDER_PARAM_OPENGL_INIT_PARAMS, &opengl_init_params },
 #if defined(USE_X11EXTRAS)
-      {MPV_RENDER_PARAM_X11_DISPLAY, QX11Info::display()},
+      { MPV_RENDER_PARAM_X11_DISPLAY, QX11Info::display() },
 #endif
-      {(mpv_render_param_type)0}
+      { MPV_RENDER_PARAM_INVALID }
   };
 
   int ret =  mpv_render_context_create(&m_mpv_gl, m_mpv, params);
