@@ -130,6 +130,11 @@ bool PlayerComponent::componentInitialize()
 
   mpv::qt::set_property(m_mpv, "tls-verify", "yes");
 
+  // `cache-pause-initial` and `cache-pause-wait` combine to improve Live TV.
+  // See: https://plex.slack.com/archives/C5W82GDN1/p1545249277079700
+  mpv::qt::set_property(m_mpv, "cache-pause-initial", "yes");
+  mpv::qt::set_property(m_mpv, "cache-pause-wait", 5);
+
 #if !defined(Q_OS_WIN) && !defined(Q_OS_MAC)
   QList<QByteArray> list;
   list << "/etc/ssl/certs/ca-certificates.crt"
@@ -170,8 +175,6 @@ bool PlayerComponent::componentInitialize()
   mpv::qt::set_property(m_mpv, "hr-seek", "no");
   // Force vo_rpi to fullscreen.
   mpv::qt::set_property(m_mpv, "fullscreen", true);
-  // wait for cache to be filled before starting playback
-  mpv::qt::set_property(m_mpv, "cache-pause-initial", "yes");
 
 #endif
 
