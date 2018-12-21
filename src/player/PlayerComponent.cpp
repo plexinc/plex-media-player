@@ -1496,7 +1496,7 @@ QString PlayerComponent::videoInformation() const
   info << endl;
   info << "Performance: " << endl;
   info << "A/V: " << MPV_PROPERTY("avsync") << endl;
-  info << "Dropped frames: " << MPV_PROPERTY("vo-drop-frame-count") << endl;
+  info << "Dropped frames: " << MPV_PROPERTY("frame-drop-count") << endl;
   bool dispSync = MPV_PROPERTY_BOOL("display-sync-active");
   info << "Display Sync: ";
   if (!dispSync)
