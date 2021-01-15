@@ -113,7 +113,7 @@ bool PlayerRenderer::init()
       .get_proc_address = get_proc_address,
       .get_proc_address_ctx = NULL,
       .extra_exts = extensions,
-  }; 
+  };
   mpv_render_param params[] = {
     {MPV_RENDER_PARAM_API_TYPE, (void*)MPV_RENDER_API_TYPE_OPENGL},
     {MPV_RENDER_PARAM_OPENGL_INIT_PARAMS, &opengl_params},
