@@ -99,7 +99,12 @@ bool InputComponent::componentInitialize()
 #endif
 #ifdef HAVE_CEC
   if (SettingsComponent::Get().value(SETTINGS_SECTION_CEC, "enable").toBool())
-    addInput(new InputCEC(this));
+  {
+    InputCEC* cec = new InputCEC(this);
+    addInput(cec);
+    connect(&InputKeyboard::Get(), &InputKeyboard::receivedInput,
+            cec, &InputCEC::activateSource);
+  }
 #endif
 
   return true;

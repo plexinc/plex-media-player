@@ -67,6 +67,12 @@ bool InputCEC::initInput()
   return retVal;
 }
 
+//////////////////////////////////////////////////////////////////////////////////////////////////
+void InputCEC::activateSource()
+{
+  QMetaObject::invokeMethod(m_cecWorker, "activateSource", Qt::QueuedConnection);
+}
+
 /////////////////////////////////////////////////////////////////////////////////////////
 InputCEC::~InputCEC()
 {
@@ -117,6 +123,9 @@ bool InputCECWorker::init()
 
   // check for attached adapters
   checkAdapter();
+
+  // if necessary, wake device(s)
+  activateSource();
 
   // Start a timer to keep track of attached/removed adapters
   m_timer = new QTimer(nullptr);
@@ -184,12 +193,26 @@ void InputCECWorker::closeAdapter()
 void InputCECWorker::checkAdapter()
 {
   if (m_adapterPort.isEmpty())
-  {    
+  {
     if (m_adapter)
       m_adapter->Close();
 
     openAdapter();
   }
+}
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
+void InputCECWorker::activateSource()
+{
+  if (!SettingsComponent::Get().value(SETTINGS_SECTION_CEC, "activatesource").toBool())
+  {
+    return;
+  }
+
+  // Check if a tv has powered on
+  QLOG_INFO() << "CEC activateSource changing input";
+  m_adapter->SetActiveSource();
+
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
