@@ -1,3 +1,7 @@
+## Deprecation
+
+Note: Plex is no longer actively maintaining Plex Media Player.  This repository is preserved as it was when last developed.  See https://www.plex.tv/media-server-downloads/#plex-app for replacement applications.
+
 ## Building
 
 You need:
